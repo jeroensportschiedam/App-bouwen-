@@ -21,7 +21,7 @@ python scenarios/run_scenarios.py
 # Stap 3 — dummy-CSV importeren in creditpool.db
 python scripts/import_csv.py data/dummy_customers.csv
 
-# API lokaal starten (optioneel, voor Stap 4)
+# Stap 4 — API + testschermpje samen starten, open daarna http://localhost:8000/ui/
 uvicorn app.main:app --reload
 ```
 
@@ -40,6 +40,8 @@ uvicorn app.main:app --reload
   waaronder één rij met een ontbrekend product om de foutafhandeling te
   demonstreren)
 - `scripts/import_csv.py` — CLI om een CSV te importeren in `creditpool.db`
+- `static/index.html` — Stap 4: dun testschermpje, rechtstreeks tegen deze
+  API aan (geen mockdata), geserveerd door FastAPI zelf onder `/ui/`
 
 Zie de sessie-samenvatting voor het volledige datamodel en de gemaakte
 aannames.

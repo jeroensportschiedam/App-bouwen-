@@ -1,9 +1,12 @@
 """Dunne FastAPI-laag rond de creditpool-engine. Bevat geen eigen
 businesslogica — alles delegeert naar app/engine.py."""
+import os
+from datetime import datetime
 from typing import Optional
 
 from fastapi import Depends, FastAPI
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session as DBSession
 
 from . import engine as biz
@@ -44,9 +47,19 @@ def handle_creditpool_error(request, exc: CreditPoolError):
     return JSONResponse(status_code=status_code, content={"detail": str(exc)})
 
 
+@app.get("/", include_in_schema=False)
+def root():
+    return RedirectResponse(url="/ui/")
+
+
 @app.post("/customers", response_model=schemas.CustomerOut)
 def create_customer(payload: schemas.CustomerCreate, db: DBSession = Depends(get_db)):
     return biz.create_customer(db, **payload.model_dump())
+
+
+@app.get("/customers", response_model=list[schemas.CustomerOut])
+def list_customers(db: DBSession = Depends(get_db)):
+    return biz.list_customers(db)
 
 
 @app.post("/trainers", response_model=schemas.TrainerOut)
@@ -93,7 +106,42 @@ def cancel_booking(booking_id: int, db: DBSession = Depends(get_db)):
     return biz.cancel_booking(db, booking_id=booking_id)
 
 
+@app.get("/customers/{customer_id}/bookings/upcoming", response_model=list[schemas.UpcomingBookingOut])
+def list_upcoming_bookings(customer_id: int, db: DBSession = Depends(get_db)):
+    bookings = biz.list_upcoming_bookings(db, customer_id)
+    out = []
+    for booking in bookings:
+        session = booking.session
+        window = biz.get_cancellation_window(db, booking.id)
+        out.append(
+            schemas.UpcomingBookingOut(
+                booking_id=booking.id,
+                session_id=session.id,
+                session_type=session.session_type,
+                start_time=session.start_time,
+                end_time=session.end_time,
+                trainer_id=session.trainer_id,
+                can_cancel=window["can_cancel"],
+                cancel_reason=window["reason"],
+            )
+        )
+    return out
+
+
+@app.get("/sessions", response_model=list[schemas.SessionOut])
+def list_available_sessions(
+    session_type: Optional[models.SessionType] = None,
+    before: Optional[datetime] = None,
+    db: DBSession = Depends(get_db),
+):
+    return biz.list_available_sessions(db, session_type=session_type, before=before)
+
+
 @app.post("/maintenance/expire-credits")
 def expire_credits(db: DBSession = Depends(get_db)):
     count = biz.expire_credits(db)
     return {"expired": count}
+
+
+static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "static")
+app.mount("/ui", StaticFiles(directory=static_dir, html=True), name="ui")

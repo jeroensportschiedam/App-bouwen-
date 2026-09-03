@@ -107,3 +107,14 @@ class CreditSummaryOut(BaseModel):
     total_valid: int
     soonest_expiry: Optional[datetime] = None
     warn_soon: bool
+
+
+class UpcomingBookingOut(BaseModel):
+    booking_id: int
+    session_id: int
+    session_type: SessionType
+    start_time: datetime
+    end_time: datetime
+    trainer_id: Optional[int] = None
+    can_cancel: bool
+    cancel_reason: str

@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Boekingssysteem — testschermpje (prototype)</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --border: #e2e5ea;
+    --text: #1f2430;
+    --muted: #6b7280;
+    --brand: #2f6feb;
+    --brand-dark: #1d4ed8;
+    --warn-bg: #fff4e5;
+    --warn-border: #f0b429;
+    --warn-text: #92400e;
+    --danger: #b91c1c;
+    --ok-bg: #ecfdf5;
+    --ok-border: #10b981;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    background: var(--brand);
+    color: white;
+    padding: 16px 20px;
+  }
+  header h1 { margin: 0; font-size: 18px; font-weight: 600; }
+  header p { margin: 4px 0 0; font-size: 13px; opacity: .85; }
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .card h2 { margin: 0 0 12px; font-size: 15px; }
+  select, button {
+    font: inherit;
+  }
+  select {
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    width: 100%;
+    background: white;
+  }
+  button {
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-weight: 600;
+  }
+  button.primary { background: var(--brand); color: white; }
+  button.primary:hover { background: var(--brand-dark); }
+  button.secondary { background: #eef2ff; color: var(--brand-dark); }
+  button:disabled {
+    background: #e5e7eb !important;
+    color: #9ca3af !important;
+    cursor: not-allowed;
+  }
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-count { font-size: 22px; font-weight: 700; }
+  .summary-label { font-size: 13px; color: var(--muted); }
+  .warning {
+    margin-top: 8px;
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    color: var(--warn-text);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  .session-item {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .session-info .type-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 6px;
+    background: #eef2ff;
+    color: var(--brand-dark);
+  }
+  .type-badge.pt { background: #fdf2f8; color: #be185d; }
+  .session-time { font-weight: 600; }
+  .session-actions { text-align: right; }
+  .reason-text {
+    font-size: 12px;
+    color: var(--muted);
+    max-width: 260px;
+    text-align: right;
+  }
+  .reason-text.blocked { color: var(--danger); }
+  .empty-state { color: var(--muted); font-size: 13px; padding: 8px 0; }
+  .error-banner {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: var(--danger);
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 13px;
+  }
+  .toast {
+    background: var(--ok-bg);
+    border: 1px solid var(--ok-border);
+    color: #065f46;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 13px;
+  }
+  .alt-panel { margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 10px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Boekingssysteem — testschermpje</h1>
+  <p>Prototype, rechtstreeks gekoppeld aan de creditpool-engine (Stap 1). Geen mockdata.</p>
+</header>
+
+<main>
+  <div class="card">
+    <h2>Klant</h2>
+    <select id="customer-select"></select>
+  </div>
+
+  <div id="messages"></div>
+
+  <div class="card" id="summary-card">
+    <h2>Nog in te plannen</h2>
+    <div id="summary-body"><p class="empty-state">Kies een klant.</p></div>
+  </div>
+
+  <div class="card" id="upcoming-card">
+    <h2>Jouw aankomende sessies</h2>
+    <div id="upcoming-body"><p class="empty-state">Kies een klant.</p></div>
+  </div>
+</main>
+
+<script>
+const state = { customerId: null, customers: [] };
+
+function fmtDateTime(iso) {
+  const d = new Date(iso);
+  return d.toLocaleString("nl-NL", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+}
+
+function showMessage(text, kind) {
+  const box = document.getElementById("messages");
+  const el = document.createElement("div");
+  el.className = kind === "error" ? "error-banner" : "toast";
+  el.textContent = text;
+  box.innerHTML = "";
+  box.appendChild(el);
+  setTimeout(() => { if (box.contains(el)) box.removeChild(el); }, 6000);
+}
+
+async function api(path, options) {
+  const res = await fetch(path, options);
+  let body = null;
+  try { body = await res.json(); } catch (e) { /* geen body */ }
+  if (!res.ok) {
+    const detail = (body && body.detail) ? body.detail : `HTTP ${res.status}`;
+    throw new Error(detail);
+  }
+  return body;
+}
+
+async function loadCustomers() {
+  const customers = await api("/customers");
+  state.customers = customers;
+  const select = document.getElementById("customer-select");
+  select.innerHTML = "";
+  if (customers.length === 0) {
+    select.innerHTML = "<option>Geen klanten gevonden — importeer eerst data (Stap 3)</option>";
+    return;
+  }
+  for (const c of customers) {
+    const opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = `${c.name} (${c.membership_type})`;
+    select.appendChild(opt);
+  }
+  const remembered = localStorage.getItem("selectedCustomerId");
+  const validRemembered = customers.some((c) => String(c.id) === remembered);
+  select.value = validRemembered ? remembered : customers[0].id;
+  state.customerId = Number(select.value);
+  select.addEventListener("change", () => {
+    state.customerId = Number(select.value);
+    localStorage.setItem("selectedCustomerId", String(state.customerId));
+    refreshAll();
+  });
+}
+
+async function refreshAll() {
+  if (!state.customerId) return;
+  await Promise.all([loadSummary(), loadUpcoming()]);
+}
+
+async function loadSummary() {
+  const body = document.getElementById("summary-body");
+  body.innerHTML = "";
+  const types = ["CLUB", "PT"];
+  let anyCredits = false;
+
+  for (const type of types) {
+    const summary = await api(`/customers/${state.customerId}/credits/summary?session_type=${type}`);
+    if (summary.total_valid === 0) continue;
+    anyCredits = true;
+
+    const wrapper = document.createElement("div");
+
+    const row = document.createElement("div");
+    row.className = "summary-row";
+    const label = type === "CLUB" ? "Clubtraining" : "PT";
+    row.innerHTML = `
+      <div>
+        <div class="summary-count">${summary.total_valid}</div>
+        <div class="summary-label">nog in te plannen — ${label}</div>
+      </div>
+      <div>
+        <button class="secondary" data-type="${type}" data-expiry="${summary.soonest_expiry || ""}">Opnieuw inplannen</button>
+      </div>
+    `;
+    wrapper.appendChild(row);
+    body.appendChild(wrapper);
+
+    if (summary.warn_soon) {
+      const warn = document.createElement("div");
+      warn.className = "warning";
+      warn.textContent = `⚠️ Let op: een ${label}-credit vervalt binnen 48 uur (op ${fmtDateTime(summary.soonest_expiry)}).`;
+      wrapper.appendChild(warn);
+    }
+
+    row.querySelector("button").addEventListener("click", (e) => {
+      toggleAlternatives(wrapper, type, summary.soonest_expiry);
+    });
+  }
+
+  if (!anyCredits) {
+    body.innerHTML = '<p class="empty-state">Geen geldige credits (nog niets in te plannen).</p>';
+  }
+}
+
+async function toggleAlternatives(wrapper, type, beforeIso) {
+  const existing = wrapper.querySelector(".alt-panel");
+  if (existing) { existing.remove(); return; }
+
+  const panel = document.createElement("div");
+  panel.className = "alt-panel";
+  panel.innerHTML = '<p class="empty-state">Laden…</p>';
+  wrapper.appendChild(panel);
+
+  try {
+    const params = new URLSearchParams({ session_type: type });
+    if (beforeIso) params.set("before", beforeIso);
+    const sessions = await api(`/sessions?${params.toString()}`);
+
+    if (sessions.length === 0) {
+      panel.innerHTML = '<p class="empty-state">Geen beschikbare momenten binnen de geldigheidstermijn van je credit.</p>';
+      return;
+    }
+
+    panel.innerHTML = "";
+    for (const s of sessions) {
+      const item = document.createElement("div");
+      item.className = "session-item";
+      item.innerHTML = `
+        <div class="session-info">
+          <span class="type-badge ${s.session_type === "PT" ? "pt" : ""}">${s.session_type}</span>
+          <span class="session-time">${fmtDateTime(s.start_time)}</span>
+        </div>
+        <div class="session-actions">
+          <button class="primary">Boek dit moment</button>
+        </div>
+      `;
+      item.querySelector("button").addEventListener("click", async () => {
+        try {
+          await api("/bookings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ customer_id: state.customerId, session_id: s.id }),
+          });
+          showMessage("Geboekt! De sessie staat in je overzicht.", "ok");
+          panel.remove();
+          await refreshAll();
+        } catch (err) {
+          showMessage(err.message, "error");
+        }
+      });
+      panel.appendChild(item);
+    }
+  } catch (err) {
+    panel.innerHTML = `<p class="empty-state">${err.message}</p>`;
+  }
+}
+
+async function loadUpcoming() {
+  const body = document.getElementById("upcoming-body");
+  body.innerHTML = "";
+  const bookings = await api(`/customers/${state.customerId}/bookings/upcoming`);
+
+  if (bookings.length === 0) {
+    body.innerHTML = '<p class="empty-state">Geen aankomende sessies ingepland.</p>';
+    return;
+  }
+
+  for (const b of bookings) {
+    const item = document.createElement("div");
+    item.className = "session-item";
+    const label = b.session_type === "CLUB" ? "Clubtraining" : "PT";
+    item.innerHTML = `
+      <div class="session-info">
+        <span class="type-badge ${b.session_type === "PT" ? "pt" : ""}">${label}</span>
+        <span class="session-time">${fmtDateTime(b.start_time)}</span>
+      </div>
+      <div class="session-actions">
+        <button class="${b.can_cancel ? "primary" : ""}" ${b.can_cancel ? "" : "disabled"}>Afmelden</button>
+        <div class="reason-text ${b.can_cancel ? "" : "blocked"}">${b.cancel_reason}</div>
+      </div>
+    `;
+    const btn = item.querySelector("button");
+    if (b.can_cancel) {
+      btn.addEventListener("click", async () => {
+        try {
+          await api(`/bookings/${b.booking_id}/cancel`, { method: "POST" });
+          showMessage("Afgemeld — je credit komt terug met een nieuwe geldigheidstermijn.", "ok");
+          await refreshAll();
+        } catch (err) {
+          showMessage(err.message, "error");
+        }
+      });
+    }
+    body.appendChild(item);
+  }
+}
+
+(async function init() {
+  try {
+    await loadCustomers();
+    await refreshAll();
+  } catch (err) {
+    showMessage(`Kan backend niet bereiken: ${err.message}`, "error");
+  }
+})();
+</script>
+</body>
+</html>

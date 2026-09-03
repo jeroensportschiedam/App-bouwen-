@@ -352,6 +352,95 @@ def cancel_booking(db, *, booking_id: int, cancel_time: Optional[datetime] = Non
 
 
 # --------------------------------------------------------------------------
+# Alleen-lezen helpers voor de UI (Stap 4) — geen nieuwe businessregels,
+# ontsluiten alleen bestaande engine-logica voor weergave.
+# --------------------------------------------------------------------------
+
+def list_customers(db) -> list[models.Customer]:
+    return db.query(models.Customer).order_by(models.Customer.name).all()
+
+
+def list_upcoming_bookings(db, customer_id: int, now: Optional[datetime] = None) -> list[models.Booking]:
+    now = _now(now)
+    return (
+        db.query(models.Booking)
+        .join(models.Session, models.Booking.session_id == models.Session.id)
+        .filter(
+            models.Booking.customer_id == customer_id,
+            models.Booking.status == models.BookingStatus.BOOKED,
+            models.Session.start_time >= now,
+        )
+        .order_by(models.Session.start_time)
+        .all()
+    )
+
+
+def get_cancellation_window(db, booking_id: int, now: Optional[datetime] = None) -> dict:
+    """Alleen-lezend: mag deze boeking nu (nog) op tijd afgemeld worden?
+    Berekent dezelfde deadline als cancel_booking, maar zonder te muteren —
+    zodat de UI de Afmelden-knop actief/inactief kan tonen mét uitleg,
+    vóórdat de klant erop klikt."""
+    now = _now(now)
+    booking = db.query(models.Booking).filter(models.Booking.id == booking_id).first()
+    if booking is None:
+        raise NotFoundError(f"Boeking {booking_id} niet gevonden.")
+    session = _get_session(db, booking.session_id)
+    hours_until_session = (session.start_time - now).total_seconds() / 3600
+    deadline_hours = CLUB_CANCEL_DEADLINE_HOURS if session.session_type == models.SessionType.CLUB else PT_CANCEL_DEADLINE_HOURS
+
+    if booking.status != models.BookingStatus.BOOKED:
+        return {
+            "can_cancel": False,
+            "hours_until_session": hours_until_session,
+            "deadline_hours": deadline_hours,
+            "reason": "Deze boeking is al geannuleerd of afgerond.",
+        }
+
+    can_cancel = hours_until_session >= deadline_hours
+    if can_cancel:
+        reason = f"Afmelden kan nog tot {deadline_hours} uur van tevoren."
+    else:
+        reason = (
+            "Te laat om af te melden: voor Clubtraining kan dit tot 12 uur van tevoren, "
+            f"voor PT-sessies tot 24 uur van tevoren. Deze sessie start over {hours_until_session:.1f} uur."
+        )
+    return {
+        "can_cancel": can_cancel,
+        "hours_until_session": hours_until_session,
+        "deadline_hours": deadline_hours,
+        "reason": reason,
+    }
+
+
+def list_available_sessions(
+    db,
+    session_type: Optional[models.SessionType] = None,
+    before: Optional[datetime] = None,
+    now: Optional[datetime] = None,
+) -> list[models.Session]:
+    """Open, niet-volle sessies in de toekomst — optioneel gefilterd op type
+    en op 'moet starten vóór X' (voor 'opnieuw inplannen binnen de
+    geldigheidstermijn van een credit')."""
+    now = _now(now)
+    query = db.query(models.Session).filter(models.Session.is_open.is_(True), models.Session.start_time >= now)
+    if session_type is not None:
+        query = query.filter(models.Session.session_type == session_type)
+    if before is not None:
+        query = query.filter(models.Session.start_time <= before)
+
+    available = []
+    for session in query.order_by(models.Session.start_time).all():
+        active_bookings = (
+            db.query(models.Booking)
+            .filter(models.Booking.session_id == session.id, models.Booking.status == models.BookingStatus.BOOKED)
+            .count()
+        )
+        if active_bookings < session.capacity:
+            available.append(session)
+    return available
+
+
+# --------------------------------------------------------------------------
 # Interne helpers
 # --------------------------------------------------------------------------
 
