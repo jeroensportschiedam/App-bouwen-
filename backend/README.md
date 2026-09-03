@@ -15,7 +15,10 @@ pip install -r requirements.txt
 # Unit tests (alle businessregels)
 python -m pytest -v
 
-# API lokaal starten (optioneel, voor Stap 2/4)
+# Stap 2 — testscenario's voor de randgevallen, met pass/fail per scenario
+python scenarios/run_scenarios.py
+
+# API lokaal starten (optioneel, voor Stap 4)
 uvicorn app.main:app --reload
 ```
 
@@ -26,6 +29,8 @@ uvicorn app.main:app --reload
 - `app/errors.py` — typed exceptions per regelovertreding
 - `app/main.py` — dunne FastAPI-laag rond `engine.py`
 - `tests/` — één testbestand per regelgroep, draait rechtstreeks tegen `engine.py`
+- `scenarios/run_scenarios.py` — Stap 2: de 7 afgesproken randgeval-scenario's
+  tegen de echte HTTP-API, met duidelijke pass/fail-uitkomst per scenario
 
 Zie de sessie-samenvatting voor het volledige datamodel en de gemaakte
 aannames.
