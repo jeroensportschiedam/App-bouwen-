@@ -1,0 +1,13 @@
+naam,email,telefoon,klant_sinds,product,status,resterende_credits
+Fictieve Klant Een,klant1@example.test,+31612345601,2024-03-01,Clubtraining,Actief,3
+Fictieve Klant Twee,klant2@example.test,+31612345602,2023-11-15,PT,Actief,5
+Fictieve Klant Drie,klant3@example.test,+31612345603,2022-06-20,Clubtraining,Inactief,0
+Fictieve Klant Vier,klant4@example.test,+31612345604,2024-01-10,PT,Actief,1
+Fictieve Klant Vijf,klant5@example.test,+31612345605,2021-09-05,Clubtraining,Actief,0
+Fictieve Klant Zes,klant6@example.test,+31612345606,2024-05-22,PT,Inactief,2
+Fictieve Klant Zeven,klant7@example.test,+31612345607,2023-02-14,Clubtraining,Actief,8
+Fictieve Klant Acht,klant8@example.test,+31612345608,2024-07-30,PT,Actief,4
+Fictieve Klant Negen,klant9@example.test,,2020-12-01,Clubtraining,Actief,2
+Fictieve Klant Tien,klant10@example.test,+31612345610,2024-08-18,,Actief,3
+Fictieve Klant Elf,klant11@example.test,+31612345611,2023-04-09,PT,Actief,0
+Fictieve Klant Twaalf,klant12@example.test,+31612345612,2022-10-27,Clubtraining,Inactief,1
