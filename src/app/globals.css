@@ -1,26 +1,62 @@
 @import "tailwindcss";
 
+/* Zand & Blauwsteen — BOUWOPDRACHT.md §4. Vaste tokens, geen losse hexcodes
+   in componenten. Blauwsteen is de enige actiekleur; Club is blauwsteen, PT
+   is klei, Fundament is sage, intake blijft neutraal grijs. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --zand: #f7f5f1;
+  --zand-2: #f1efeb;
+  --mist: #e8eae9;
+  --wit: #ffffff;
+  --nacht: #1e2733;
+  --diep: #23303c;
+  --ink: #1e2733;
+  --ink-2: #5d6874;
+  --line: #e0e1de;
+  --line-2: #ededea;
+  --steen: #4c6274;
+  --steen-600: #3b4e5e;
+  --steen-400: #8fa5b5;
+  --steen-50: #e4e9ec;
+  --klei: #d8c3b1;
+  --klei-600: #b79773;
+  --sage: #5f7a63;
+  --amber: #b98a3e;
+  --wijn: #9a3b3b;
+  --display: var(--font-righteous), system-ui, sans-serif;
+  --body: var(--font-funnel-sans), -apple-system, "Segoe UI", Helvetica, sans-serif;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-zand: var(--zand);
+  --color-nacht: var(--nacht);
+  --color-steen: var(--steen);
+  --color-klei: var(--klei);
+  --color-sage: var(--sage);
+  --font-display: var(--display);
+  --font-body: var(--body);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--zand);
+  color: var(--ink);
+  font-family: var(--body);
+  margin: 0;
+}
+
+.font-display {
+  font-family: var(--display);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }

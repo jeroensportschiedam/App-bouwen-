@@ -30,6 +30,7 @@
 import { PrismaClient, type PayMethod, type PayRhythm, type ProductGroup } from "@prisma/client";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import bcrypt from "bcryptjs";
 import productmapRaw from "./productmap.json";
 
 const db = new PrismaClient();
@@ -419,10 +420,35 @@ async function seedKlanten() {
   );
 }
 
+// Testaccounts voor fase 1 (inloggen en rollen). Trainer- en eigenaaraccounts
+// komen niet uit de Trainin-export (die kent alleen klanten) — CLAUDE.md §14
+// zegt dat trainers en de eigenaar eigen accounts krijgen, gekoppeld aan hun
+// e-mailadres. Wachtwoorden hieronder zijn alleen voor lokale ontwikkeling.
+const STAFF = [
+  { email: "eigenaar@deimpactclub.nl", firstName: "Jeroen", lastName: "Sport", role: "OWNER" as const, password: "eigenaar123" },
+  { email: "trainer@deimpactclub.nl", firstName: "Fenna", lastName: "Trainer", role: "TRAINER" as const, password: "trainer123" },
+];
+
+async function seedStaff() {
+  for (const s of STAFF) {
+    const passwordHash = await bcrypt.hash(s.password, 10);
+    await db.user.upsert({
+      where: { email: s.email },
+      update: { firstName: s.firstName, lastName: s.lastName, role: s.role, passwordHash },
+      create: { email: s.email, firstName: s.firstName, lastName: s.lastName, role: s.role, passwordHash, active: true },
+    });
+  }
+  console.log("Testaccounts (alleen lokale ontwikkeling):");
+  for (const s of STAFF) {
+    console.log(`  ${s.role === "OWNER" ? "eigenaar" : "trainer"}: ${s.email} / ${s.password}`);
+  }
+}
+
 async function main() {
   await seedProducten();
   await seedActiviteiten();
   await seedSettings();
+  await seedStaff();
   await seedKlanten();
 }
 
