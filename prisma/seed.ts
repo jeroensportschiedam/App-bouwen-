@@ -1,12 +1,11 @@
 // Seed vanuit de Trainin-export — zie CLAUDE.md §14 en BOUWOPDRACHT.md §7.
 //
-// LET OP: er is nog geen echte Trainin-export aangeleverd in dit project.
-// Dit script draait tegen `prisma/seed-data/trainin-export.example.csv`, een
-// fixture die elke regel uit §14 een keer raakt (twee namen, geen product,
-// onbekend product, dubbel product in één regel, jaarlijkse betaling,
-// inactieve klant). Zodra Jeroen de echte export van 5 september 2026
-// aanlevert, zet het bestand op het pad in TRAININ_CSV_PATH hieronder (of
-// geef het pad mee als eerste argument) en draai `npm run db:seed` opnieuw.
+// Draait standaard tegen de echte export van 5 september 2026
+// (prisma/seed-data/trainin-export-2026-09-05.csv). Geef een ander pad mee
+// als eerste argument om tegen iets anders te draaien, bv. de fixture
+// prisma/seed-data/trainin-export.example.csv die elke regel uit §14 in
+// isolatie test (twee namen, geen product, onbekend product, dubbel product
+// in één regel, jaarlijkse betaling, inactieve klant).
 //
 // Regels die dit script waarmaakt (CLAUDE.md §14):
 // - Sleutel is de klantreferentie, niet de naam.
@@ -16,6 +15,17 @@
 // - Records zonder product (bij status "actief") en records op twee namen
 //   komen in de ImportIssue-controlelijst, niet stilzwijgend in de app.
 // - Inactieve klanten worden wel geïmporteerd, met status inactief.
+//
+// Twee dingen die pas bij het echte bestand aan het licht kwamen en die de
+// eerdere fixture niet dekte:
+// - Rittenkaarten (25 sessies / DUO) horen als Rittenkaart-record in de app,
+//   niet als Subscription — maar zonder de ontbrekende "resterende credits"
+//   en aankoopdatum (CLAUDE.md §14) zou elk geïmporteerd saldo gegokt zijn.
+//   Daarom loggen we deze naar ImportIssue in plaats van een fout saldo te
+//   verzinnen; zie RITTENKAART_ONBEKEND_SALDO hieronder.
+// - Losse-tarief-producten (Losse Clubtraining / Losse privé training) zijn
+//   per-boeking-afrekening, geen lopend abonnement (CLAUDE.md §4/§12) — die
+//   slaan we dus niet op als Subscription.
 
 import { PrismaClient, type PayMethod, type PayRhythm, type ProductGroup } from "@prisma/client";
 import { readFileSync } from "node:fs";
@@ -25,7 +35,7 @@ import productmapRaw from "./productmap.json";
 const db = new PrismaClient();
 
 const TRAININ_CSV_PATH =
-  process.argv[2] ?? path.join(__dirname, "seed-data", "trainin-export.example.csv");
+  process.argv[2] ?? path.join(__dirname, "seed-data", "trainin-export-2026-09-05.csv");
 
 // De datum van de eerste export (CLAUDE.md §4/§14). Trainin levert geen
 // startdatum per abonnement; zolang dat veld er niet is, gebruiken we deze
@@ -139,14 +149,30 @@ function parseCsv(text: string): string[][] {
   return rows;
 }
 
+// Trainin's eigen exportkolom heet "Klant ref.", niet "klantreferentie" —
+// dit accepteert beide schrijfwijzen zodat een volgende export niet meteen
+// een codewijziging vraagt.
+const KOLOM_ALIASSEN: Record<string, string[]> = {
+  voornaam: ["voornaam"],
+  achternaam: ["achternaam"],
+  klantreferentie: ["klant ref.", "klant ref", "klantreferentie", "klantreferentie."],
+  productnaam: ["productnaam"],
+  status: ["status"],
+};
+
 function leesCsv(pad: string): CsvRecord[] {
   const tekst = readFileSync(pad, "utf-8");
   const rijen = parseCsv(tekst);
   const [header, ...data] = rijen;
-  const kolom = (naam: string) => {
-    const i = header.indexOf(naam);
-    if (i === -1) throw new Error(`Kolom "${naam}" ontbreekt in ${pad}. Verwacht: voornaam,achternaam,klantreferentie,productnaam,status`);
-    return i;
+  const genormaliseerdeHeader = header.map((h) => h.trim().toLowerCase());
+  const kolom = (naam: keyof typeof KOLOM_ALIASSEN) => {
+    for (const alias of KOLOM_ALIASSEN[naam]) {
+      const i = genormaliseerdeHeader.indexOf(alias);
+      if (i !== -1) return i;
+    }
+    throw new Error(
+      `Kolom "${naam}" ontbreekt in ${pad}. Verwacht een van: ${KOLOM_ALIASSEN[naam].join(", ")}. Gevonden kolommen: ${header.join(", ")}`,
+    );
   };
   const iVoornaam = kolom("voornaam");
   const iAchternaam = kolom("achternaam");
@@ -299,6 +325,7 @@ async function seedKlanten() {
     });
 
     const gezien = new Set<string>();
+    const clubNiveaus: string[] = [];
     for (const ruw of ruweProducten) {
       const genormaliseerd = productmap[ruw];
       if (!genormaliseerd) {
@@ -321,6 +348,37 @@ async function seedKlanten() {
         continue;
       }
 
+      if (product.group === "LOS" || product.group === "GRATIS") {
+        // Per-boeking-afrekening, geen lopend abonnement (CLAUDE.md §4/§12) — niets op te slaan.
+        continue;
+      }
+
+      if (product.group === "KAART") {
+        // Rittenkaart is een eigen pool (Rittenkaart-model), geen Subscription. Zonder de
+        // resterende ritten en de aankoopdatum (CLAUDE.md §14, nog niet in de export) zou
+        // elk saldo dat we hier verzinnen fout zijn — dus loggen voor handmatige invoer
+        // in plaats van gokken.
+        await logImportIssue(
+          "RITTENKAART_ONBEKEND_SALDO",
+          record,
+          `Klant heeft "${genormaliseerd}", maar resterende ritten en vervaldatum ontbreken in de export — handmatig aanmaken in Rittenkaart.`,
+        );
+        continue;
+      }
+
+      if (product.group === "TRAJECT") {
+        // Het Fundament plant 4 sessies op een vast tijdstip in (CLAUDE.md §5) — dat kan een
+        // CSV-import niet zelf verzinnen, dus loggen voor handmatige start van het traject.
+        await logImportIssue(
+          "TRAJECT_NIET_GEIMPORTEERD",
+          record,
+          `Klant heeft "${genormaliseerd}", maar het Fundament Traject moet handmatig gestart worden (plant 4 vaste sessies).`,
+        );
+        continue;
+      }
+
+      if (product.group === "CLUB") clubNiveaus.push(genormaliseerd);
+
       const rhythm: PayRhythm = isJaarlijks(ruw) ? "JAARLIJKS" : "MAANDELIJKS";
       await db.subscription.upsert({
         where: {
@@ -339,6 +397,16 @@ async function seedKlanten() {
           active: actief,
         },
       });
+    }
+
+    if (clubNiveaus.length > 1) {
+      // Vermoedelijk een upgrade/downgrade die in Trainin niet is opgeschoond, geen
+      // bewuste keuze voor twee clubniveaus tegelijk — melden, niet zelf oplossen.
+      await logImportIssue(
+        "MEERDERE_CLUBNIVEAUS",
+        record,
+        `Klant heeft meerdere clubniveaus tegelijk: ${clubNiveaus.join(" + ")}. Waarschijnlijk een niet-opgeschoonde upgrade in Trainin — handmatig controleren welke moet blijven staan.`,
+      );
     }
 
     geimporteerd++;

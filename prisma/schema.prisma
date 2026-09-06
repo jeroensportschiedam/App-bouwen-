@@ -387,6 +387,7 @@ model ImportIssue {
   firstName   String
   lastName    String
   reason      String // TWEE_NAMEN | GEEN_PRODUCT | DUBBEL_ABONNEMENT | ONBEKEND_PRODUCT | GEEN_KLANTREFERENTIE
+  // | RITTENKAART_ONBEKEND_SALDO | TRAJECT_NIET_GEIMPORTEERD | MEERDERE_CLUBNIVEAUS
   detail      String
   raw         String // de originele CSV-regel, voor handmatige controle
   createdAt   DateTime @default(now())
