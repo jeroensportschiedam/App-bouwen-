@@ -1,0 +1,20 @@
+{
+  "_comment": "Koppeltabel van Trainin-schrijfwijzen naar de acht genormaliseerde producten. Zie CLAUDE.md §4. Configuratie, geen code: nieuwe schrijfwijzen komen hier bij zonder dat de importer verandert.",
+  "Small Group Lidmaatschap BASIS": "Clubtraining BASIS",
+  "Clubtraining BASIS": "Clubtraining BASIS",
+  "Small Group Lidmaatschap GROEI": "Clubtraining GROEI",
+  "Clubtraining GROEI": "Clubtraining GROEI",
+  "Clubtraining INTENS": "Clubtraining INTENS",
+  "1x per week PT - maandelijks lidmaatschap": "Personal Training 1× per week",
+  "1x per week PT - maandelijks": "Personal Training 1× per week",
+  "1x per week PT": "Personal Training 1× per week",
+  "Lidmaatschap PT - 1x per week": "Personal Training 1× per week",
+  "1x per week PT - Jaarlijks lidmaatschap": "Personal Training 1× per week",
+  "2x per week PT - maandelijks lidmaatschap": "Personal Training 2× per week",
+  "2x per week PT - maandelijks": "Personal Training 2× per week",
+  "Lidmaatschap PT - 2x per week": "Personal Training 2× per week",
+  "2x per week PT - Jaarlijks lidmaatschap": "Personal Training 2× per week",
+  "25 sessies - Privé Training": "Rittenkaart PT, 25 sessies",
+  "10x DUO Rittenkaart": "DUO rittenkaart, 10 sessies",
+  "Het Fundament": "Fundament Traject"
+}

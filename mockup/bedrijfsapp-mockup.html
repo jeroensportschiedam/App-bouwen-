@@ -1,0 +1,2782 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>De Impact Club — Bedrijfsapp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Funnel+Sans:wght@300..800&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* palet Zand & Blauwsteen — design system versie 2.0 */
+  --zand:#F7F5F1; --zand-2:#F1EFEB; --mist:#E8EAE9;
+  --head:#1E2733;            /* nachtblauw: header en zijbalk */
+  --head-ink:#E7EBEE;
+  --diep:#23303C;
+  --ink:#1E2733;
+  --muted:#5D6874;
+  --line:#E0E1DE;
+  --line-2:#EDEDEA;
+  --bg:#FBFAF7;              /* app-grond, net iets lichter dan zand */
+  --surface:#FFFFFF;
+  --soft:#F1EFEB;
+  --steen:#4C6274; --steen-600:#3B4E5E; --steen-400:#8FA5B5; --steen-50:#E4E9EC;
+  --klei:#D8C3B1; --klei-600:#B79773;
+  /* sessieblokken: Club is blauwsteen, PT is klei */
+  --green:#DCE4EA; --green-bd:#BFCEDA; --green-ink:#33485A;
+  --sand:#EFE6DA; --sand-bd:#D8C3B1; --sand-ink:#7C5F3C;
+  --sky:#E2E9E3; --sky-bd:#C4D3C6; --sky-ink:#435C4A;
+  --acc:#5F7A63;             /* sage: bezetting, betaald, aanwezig */
+  --red:#9A3B3B;             /* wijn */
+  --amber:#B98A3E;
+  --pale:var(--steen-50);
+  --display:"Righteous","Arial Black",system-ui,sans-serif;
+  --body:"Funnel Sans",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+  --half:46px;
+  color-scheme:light;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:var(--mist);color:var(--ink);font-family:var(--body);
+  font-size:15px;line-height:1.6;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:left}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.device{max-width:430px;margin:0 auto;min-height:100dvh;background:var(--bg);display:flex;flex-direction:column;position:relative}
+@media(min-width:520px){
+  body{padding:20px 0}
+  .device{height:calc(100dvh - 40px);min-height:0;border-radius:26px;overflow:hidden;
+    box-shadow:0 20px 46px -20px rgba(31,35,23,.5)}
+}
+
+/* ---------- header ---------- */
+.hdr{background:var(--head);color:var(--head-ink);flex:none;border-bottom:3px solid var(--klei)}
+.hrow{display:flex;align-items:center;gap:14px;padding:14px 18px 12px;min-height:58px}
+.hrow .mid{flex:1;text-align:center;font-weight:600;font-size:17px}
+.hrow .mid.left{text-align:left}
+.hrow .mid small{display:block;font-size:12.5px;font-weight:500;color:#BFC3B0;margin-top:1px}
+.dots{letter-spacing:1px;font-size:20px;line-height:1}
+.hico{width:26px;height:26px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round}
+.logo{flex:1;text-align:center;font-family:var(--display);font-weight:400;font-size:20px;letter-spacing:.04em}
+.logo em{font-style:normal;color:transparent;-webkit-text-stroke:1px var(--head-ink)}
+.htabs{display:flex;padding:0 10px}
+.htab{flex:1;text-align:center;padding:8px 0 10px;font-weight:500;font-size:14.5px;color:#B9BCA9;position:relative}
+.htab.on{color:var(--head-ink);font-weight:600}
+.htab.on:after{content:"";position:absolute;left:22%;right:22%;bottom:2px;height:3px;border-radius:2px;background:var(--klei)}
+.dsel{display:inline-flex;align-items:center;gap:6px;font-family:var(--display);font-weight:400;font-size:17px}
+
+/* ---------- main ---------- */
+main{flex:1;overflow-y:auto;overscroll-behavior:contain;background:var(--bg)}
+.screen{display:none}
+.screen.on{display:block}
+.pad{padding:0 16px}
+.sechead{display:flex;align-items:center;gap:11px;padding:18px 16px 6px}
+.sechead .ic{width:38px;height:38px;border-radius:50%;background:var(--soft);display:grid;place-items:center;flex:none}
+.sechead .ic svg{width:19px;height:19px;stroke:var(--ink);fill:none;stroke-width:1.7}
+.sechead h2{margin:0;font-family:var(--display);font-weight:400;font-size:18px;letter-spacing:.01em}
+.sechead .sub{font-size:12.5px;color:var(--muted);font-weight:400}
+.rule{height:1px;background:var(--line);margin:0 16px}
+.tip{margin:12px 16px 0;font-size:12.5px;color:var(--muted);line-height:1.5}
+.spacer{height:26px}
+
+/* ---------- dashboard stats ---------- */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px}
+.stat{border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stat .lbl{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--muted);font-weight:500}
+.stat .lbl i{width:14px;height:14px;border-radius:50%;background:#C3C6BC;color:#fff;font-size:9.5px;
+  font-style:normal;display:grid;place-items:center;font-weight:600}
+.stat b{display:block;font-family:var(--display);font-weight:400;font-size:21px;letter-spacing:.01em;margin:4px 0 1px;line-height:1.15}
+.stat b span{font-size:12.5px!important}
+.stat small{display:block;color:var(--muted);font-size:11.5px;line-height:1.3}
+.alertbar{margin:0 16px;border:1px solid #E6D9BC;background:#FBF5E6;border-radius:14px;
+  padding:11px 14px;display:flex;gap:10px;align-items:center;width:calc(100% - 32px)}
+.alertbar b{font-size:13.5px;font-weight:600;display:block}
+.alertbar small{font-size:12.5px;color:var(--muted)}
+.alertbar .chev{margin-left:auto;color:var(--muted);font-size:20px}
+
+/* ---------- dashboard sessiekaarten ---------- */
+.daymark{display:flex;align-items:center;gap:10px;padding:14px 16px 2px}
+.daymark b{font-size:13px;font-weight:600}
+.daymark span{font-size:12.5px;color:var(--muted)}
+.dcard{display:block;width:100%;border-top:1px solid var(--line);padding:14px 16px 16px;background:#fff}
+.dtop{display:flex;gap:12px;align-items:flex-start}
+.dtime{width:52px;flex:none;text-align:right}
+.dtime b{display:block;font-family:var(--display);font-weight:400;font-size:16px;line-height:1.2}
+.dtime small{display:block;font-size:13px;color:#A3A89A}
+.dmain{flex:1;min-width:0}
+.dmain .t{font-weight:600;font-size:15px;letter-spacing:-.01em}
+.dmain .tr{color:var(--muted);font-size:13.5px}
+.dmain .oc{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--acc);margin-top:2px}
+.dmain .oc.full{color:var(--red)}
+.dmain .oc svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7}
+.chev{color:#B9BDB2;font-size:22px;line-height:1;flex:none;align-self:center}
+.focus{margin:10px 0 0 64px;background:var(--steen-50);border-radius:10px;padding:8px 10px;font-size:13px;line-height:1.45}
+.focus b{font-weight:600}
+.notes{margin:9px 0 0 64px;padding:0;list-style:none}
+.notes li{display:flex;gap:8px;padding:5px 0;font-size:13px;line-height:1.4;border-top:1px solid var(--line-2)}
+.notes li:first-child{border-top:0}
+.notes .tag{flex:none;font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:6px;margin-top:1px;white-space:nowrap}
+.t-blessure{background:#F8E7E4;color:var(--red)}
+.t-credit{background:#FAF0DC;color:var(--amber)}
+.t-nieuw{background:#E2F0E5;color:#256B37}
+.t-vrij{background:#EDEEE9;color:var(--muted)}
+.t-afmelding{background:#EDEEE9;color:var(--muted)}
+.notes u{text-decoration:none;font-weight:600}
+
+/* ---------- agenda ---------- */
+.abar{display:flex;align-items:center;border-bottom:1px solid var(--line);background:#fff}
+.abar .wk{width:64px;flex:none;text-align:center;color:var(--muted);font-size:13px;padding:9px 0}
+.abar .dt{flex:1;text-align:center;font-family:var(--display);font-weight:400;font-size:16px;padding:9px 0}
+.viewbar{display:flex;align-items:center;border-bottom:1px solid var(--line)}
+.viewbar .vs{width:64px;flex:none;text-align:center;padding:8px 0;font-size:13.5px;color:var(--muted);
+  border-right:1px solid var(--line)}
+.viewbar .chips{display:flex;gap:6px;overflow-x:auto;padding:7px 10px;scrollbar-width:none}
+.viewbar .chips::-webkit-scrollbar{display:none}
+.chip{white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13px;
+  font-weight:500;color:var(--muted);background:#fff}
+.chip.on{background:var(--steen);border-color:var(--steen);color:#fff}
+
+.tl{display:flex;position:relative}
+.tlg{width:64px;flex:none;border-right:1px solid var(--line)}
+.tlg div{height:var(--half);font-size:13px;color:#7C8174;padding:0 8px 0 0;text-align:right;
+  transform:translateY(-8px)}
+.tlb{flex:1;position:relative}
+.tlb .grid div{height:var(--half);border-bottom:1px dotted #DFE0D9}
+.tlb .grid div.hour{border-bottom:1px solid var(--line)}
+.ev{position:absolute;border:1px solid;border-radius:5px;padding:5px 7px;overflow:hidden;display:block}
+.ev .h{font-size:11.5px;font-weight:400;opacity:.85;display:flex;gap:5px;align-items:center}
+.ev .n{font-size:14px;font-weight:600;line-height:1.2;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev .s{font-size:12px;line-height:1.25;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev.club{background:var(--green);border-color:var(--green-bd);color:var(--green-ink)}
+.ev.pt{background:var(--sand);border-color:var(--sand-bd);color:var(--sand-ink)}
+.ev.fund{background:var(--sky);border-color:var(--sky-bd);color:var(--sky-ink)}
+.ev.intake{background:var(--mist);border-color:var(--line);color:var(--muted)}
+.wev.intake{background:var(--mist);border-color:var(--line);color:var(--muted)}
+.ev.full{box-shadow:inset 4px 0 0 rgba(176,57,44,.75)}
+.nowline{position:absolute;left:0;right:0;height:2px;background:var(--red);z-index:5}
+.nowline:before{content:"";position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--red)}
+
+/* week (compact) */
+.wkwrap{overflow-x:auto}
+.wkhead{display:flex;position:sticky;top:0;background:#fff;z-index:4;border-bottom:1px solid var(--line)}
+.wkhead .g{width:44px;flex:none;border-right:1px solid var(--line)}
+.wkhead .d{width:78px;flex:none;text-align:center;padding:6px 0;border-right:1px solid var(--line-2);font-size:12px;color:var(--muted)}
+.wkhead .d b{display:block;font-family:var(--display);font-weight:400;font-size:16px;color:var(--ink)}
+.wkhead .d.today b{background:var(--steen);color:#fff;border-radius:9px;padding:0 7px;display:inline-block}
+.wkbody{display:flex}
+.wkg{width:44px;flex:none;border-right:1px solid var(--line)}
+.wkg div{height:32px;font-size:11px;color:#8A8F82;text-align:right;padding-right:5px;transform:translateY(-6px)}
+.wkcol{width:78px;flex:none;position:relative;border-right:1px solid var(--line-2)}
+.wkcol .lines div{height:32px;border-bottom:1px dotted #E4E5DE}
+.wev{position:absolute;left:2px;right:2px;border:1px solid;border-radius:4px;padding:2px 4px;overflow:hidden}
+.wev b{display:block;font-size:10.5px;font-weight:600;line-height:1.15}
+.wev small{display:block;font-size:10px;opacity:.85}
+
+/* ---------- klanten ---------- */
+.searchrow{display:flex;gap:9px;padding:13px 16px}
+.sbox{flex:1;display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:9px 12px}
+.sbox svg{width:18px;height:18px;stroke:#A3A89A;fill:none;stroke-width:2;flex:none}
+.sbox input{flex:1;border:0;outline:0;font:inherit;font-size:14px;background:none;min-width:0}
+.sbtn{width:42px;height:42px;border:1px solid var(--line);border-radius:12px;display:grid;place-items:center;flex:none}
+.sbtn svg{width:19px;height:19px;stroke:var(--ink);fill:none;stroke-width:1.7}
+.klist{display:block}
+.krow{display:flex;align-items:center;gap:13px;width:100%;padding:11px 16px;border-top:1px solid var(--line-2)}
+.av{width:46px;height:46px;border-radius:50%;background:var(--steen-50);color:var(--steen-600);display:grid;place-items:center;
+  font-weight:600;font-size:14px;flex:none}
+.av.off{background:var(--mist);color:var(--muted)}
+.kmain{flex:1;min-width:0}
+.kmain b{display:block;font-weight:600;font-size:15.5px;letter-spacing:-.01em}
+.kmain span{display:block;color:var(--muted);font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crs{display:flex;gap:3px;flex:none;align-items:center}
+.cr{width:8px;height:15px;border-radius:2px;background:#E3E4DE}
+.cr.on{background:var(--acc)}
+.cr.soon{background:#D9A22B}
+.pager{display:flex;align-items:center;justify-content:center;gap:12px;padding:12px;border-top:1px solid var(--line);
+  background:var(--soft);color:var(--muted);font-size:13px}
+.pager b{color:var(--ink);font-weight:600}
+
+/* tabel */
+.tablewrap{overflow-x:auto;border-top:1px solid var(--line)}
+table{border-collapse:collapse;width:max-content;min-width:100%}
+th,td{padding:10px 12px;text-align:left;font-size:13px;white-space:nowrap;border-bottom:1px solid var(--line-2)}
+th{font-size:11.5px;color:var(--muted);font-weight:600;position:sticky;top:0;background:#fff;z-index:3}
+.stick{position:sticky;left:0;background:#fff;z-index:2;border-right:1px solid var(--line-2);min-width:160px}
+th.stick{z-index:4}
+.badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:7px;border:1px solid}
+.b-club{color:var(--steen-600);background:var(--steen-50);border-color:#BFCEDA}
+.b-pt{color:#8A6A44;background:#EFE6DA;border-color:var(--klei)}
+.b-both{color:#8A6A44;background:#EFE6DA;border-color:#BFCEDA}
+.b-fund{color:var(--sky-ink);background:var(--sky);border-color:var(--sky-bd)}
+.b-off{color:var(--muted);background:var(--mist);border-color:var(--line)}
+.b-red{color:var(--red);background:#F4E1E1;border-color:#E0B9B9}
+.b-amber{color:#8A6520;background:#F6EBD8;border-color:#E3CB9B}
+
+/* ---------- profiel ---------- */
+.phead{display:flex;gap:14px;align-items:center;padding:16px}
+.phead .av{width:60px;height:60px;font-size:18px}
+.phead b{font-family:var(--display);font-weight:400;font-size:21px;letter-spacing:.01em;display:block}
+.counter{margin:0 16px;background:var(--head);color:#fff;border-radius:16px;padding:15px 16px}
+.counter b{display:block;font-family:var(--display);font-weight:400;font-size:21px;letter-spacing:.01em}
+.counter small{display:block;color:#C0C4B2;font-size:13px;margin-top:1px}
+.counter .w{margin-top:11px;background:#2C3A47;color:#E8C68A;border-radius:10px;padding:8px 11px;font-size:12.5px;font-weight:500}
+.card{border:1px solid var(--line);border-radius:14px;padding:13px 14px;margin:10px 16px}
+.card.tap{display:block;width:calc(100% - 32px)}
+.note{background:#FBF6EE;border-color:#E9DCC6}
+.kv{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px solid var(--line-2);font-size:13.5px}
+.kv:last-child{border-bottom:0}
+.kv span{color:var(--muted)}
+.kv b{font-weight:500;text-align:right}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 16px}
+.mini .s{border:1px solid var(--line);border-radius:13px;padding:11px 13px}
+.mini b{display:block;font-family:var(--display);font-weight:400;font-size:20px}
+.mini small{color:var(--muted);font-size:12.5px}
+.btnrow{display:flex;gap:10px;margin:14px 16px 0}
+.btn{flex:1;background:var(--steen);color:#fff;border-radius:999px;padding:13px;font-weight:700;font-size:14.5px;text-align:center;min-height:44px}
+.btn:hover{background:var(--steen-600)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid #C6CBCD}
+.btn.ghost:hover{border-color:var(--ink)}
+
+/* ---------- updates ---------- */
+.upd{border-left:3px solid var(--line);border-radius:0 14px 14px 0}
+.upd.sig{border-left-color:var(--red)}
+.upd.att{border-left-color:#D9A22B}
+.upd p{margin:8px 0 0;font-size:13.5px;color:#42473C}
+.rowline{display:flex;align-items:center;gap:11px}
+.when{margin-left:auto;color:var(--muted);font-size:12px;flex:none}
+
+/* ---------- chat ---------- */
+.thread{padding:14px 16px 0;display:flex;flex-direction:column;gap:9px}
+.msg{max-width:82%;padding:9px 13px;border-radius:16px;font-size:14px}
+.msg.them{background:var(--soft);border:1px solid var(--line);border-bottom-left-radius:5px;align-self:flex-start}
+.msg.us{background:var(--steen);color:#fff;border-bottom-right-radius:5px;align-self:flex-end}
+.msg time{display:block;font-size:10.5px;opacity:.65;margin-top:3px}
+.composer{display:flex;gap:9px;padding:14px 16px 0}
+.composer input{flex:1;border:1px solid var(--line);border-radius:12px;padding:11px 13px;font:inherit;font-size:14px;outline:0}
+.send{width:46px;border-radius:999px;background:var(--steen);color:#fff;font-weight:700;text-align:center}
+
+/* ---------- meer / instellingen ---------- */
+.mrow{display:flex;align-items:center;gap:13px;width:100%;padding:14px 16px;border-top:1px solid var(--line-2)}
+.mrow .ic{width:40px;height:40px;border-radius:12px;background:var(--soft);display:grid;place-items:center;flex:none}
+.mrow .ic svg{width:20px;height:20px;stroke:var(--ink);fill:none;stroke-width:1.7}
+.mrow b{display:block;font-size:15px;font-weight:500}
+.mrow small{color:var(--muted);font-size:12.5px}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:12px 16px}
+.slot{border:1px solid var(--line);border-radius:12px;padding:11px 4px;text-align:center;font-weight:500;font-size:14px}
+.slot small{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+.slot.free{background:var(--steen-50);border-color:#BFCEDA;color:var(--steen-600)}
+.slot.free small{color:var(--steen)}
+.slot.taken{background:var(--sand);border-color:var(--sand-bd);color:var(--sand-ink)}
+.slot.taken small{color:var(--sand-ink)}
+
+/* ---------- formulier ---------- */
+.field{padding:18px 16px 0}
+.flabel{font-size:17px;font-weight:500;letter-spacing:-.01em}
+.flabel em{font-style:normal;color:#C0392B}
+.fhelp{color:var(--muted);font-size:14px;line-height:1.4;margin-top:8px}
+.fin{width:100%;border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-top:10px;
+  font:inherit;font-size:16px;outline:0;background:#fff;color:var(--ink)}
+.fin:focus{border-color:var(--steen);outline:3px solid rgba(76,98,116,.22);outline-offset:1px}
+select.fin{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='%23767C6E' stroke-width='1.8'><path d='M5 8l5 5 5-5'/></svg>");
+  background-repeat:no-repeat;background-position:right 14px center}
+.timerow{display:flex;align-items:center;gap:12px;margin-top:10px}
+.tbox{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);
+  border-radius:12px;padding:11px 6px}
+.tbox input{width:44px;border:0;outline:0;font:inherit;font-size:17px;text-align:center;background:none}
+.tbox span{color:var(--muted)}
+.timerow .tot{color:var(--muted);font-size:15px;flex:none}
+.sw{width:58px;height:32px;border-radius:16px;background:#DDDED7;position:relative;margin-top:10px;
+  transition:background .15s;flex:none}
+.sw i{position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;
+  box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .15s}
+.sw.on{background:var(--steen)}
+.sw.on i{transform:translateX(26px)}
+.seg{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:10px}
+.segb{flex:1;text-align:center;padding:13px 0;font-size:14.5px;color:var(--muted);
+  border-right:1px solid var(--line);background:#fff}
+.segb:last-child{border-right:0}
+.segb.on{background:var(--steen-50);color:var(--steen-600);font-weight:700}
+.chk{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:12px;
+  padding:12px 14px;margin-top:9px;width:100%;font-size:15px}
+.chk .box{width:22px;height:22px;border-radius:6px;border:1.5px solid #C3C6BC;flex:none;display:grid;place-items:center;color:#fff;font-size:13px}
+.chk.on .box{background:var(--steen);border-color:var(--steen)}
+.preview{margin:16px 16px 0;background:var(--steen-50);border-radius:12px;padding:11px 13px;font-size:13px;line-height:1.5}
+.preview b{font-weight:600}
+.savebar{display:flex;gap:10px;padding:20px 16px 0;border-top:1px solid var(--line);margin-top:22px}
+.rulechips{display:flex;gap:5px;margin-top:9px;flex-wrap:wrap}
+.rulechip{font-size:12px;padding:3px 9px;border-radius:999px;background:var(--mist);color:var(--muted)}
+.rulechip.on{background:var(--steen-50);color:var(--steen-600);font-weight:700}
+
+/* ---------- aanwezigheid ---------- */
+.prow{display:block;width:100%;padding:11px 16px 13px;border-top:1px solid var(--line-2)}
+.prow .kmain{text-align:left}
+.linkb{flex:none;font-size:13px;font-weight:500;color:var(--red);padding:4px 2px}
+.pstat{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:9px}
+.pstat button{flex:1;padding:8px 0;text-align:center;font-size:12.5px;color:var(--muted);
+  border-right:1px solid var(--line);background:#fff}
+.pstat button:last-child{border-right:0}
+.pstat button.on{background:var(--steen-50);color:var(--steen-600);font-weight:700}
+.pstat button.on.no{background:#F4E1E1;color:var(--red)}
+.pstat button:disabled{opacity:.55}
+.donecard{display:flex;align-items:center;gap:12px;width:100%;padding:12px 16px;border-top:1px solid var(--line-2)}
+.donecard b{font-size:15px;font-weight:600;display:block}
+.donecard small{color:var(--muted);font-size:12.5px}
+.pill{font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:8px;flex:none}
+.pill.ok{background:var(--steen-50);color:var(--steen-600)}
+.pill.todo{background:#F6EBD8;color:#8A6520}
+.stbar{display:flex;align-items:center;gap:11px;padding:10px 16px;border-top:1px solid var(--line-2)}
+.stbar .lab{width:74px;flex:none;font-size:13px;color:var(--muted)}
+.stbar .track{flex:1;height:10px;background:var(--soft);border-radius:5px;overflow:hidden}
+.stbar .track i{display:block;height:100%;background:var(--steen);border-radius:5px}
+.stbar .num{width:66px;flex:none;text-align:right;font-size:13px;font-weight:600}
+.stbar.nu .track i{background:var(--acc)}
+.prow{border-top:1px solid var(--line-2)}
+.seg-sm .segb{padding:9px 0;font-size:12.5px}
+.creditnote{margin:0 16px 11px;font-size:12.5px;color:var(--muted);line-height:1.45}
+.creditnote b{color:var(--ink);font-weight:600}
+.linkbtn{color:var(--steen);font-weight:700;text-decoration:underline}
+.attline{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);margin-top:6px}
+.attline b{color:var(--ink);font-weight:600}
+
+/* ---------- hamburgermenu ---------- */
+.drawer{position:absolute;top:0;bottom:0;left:0;width:84%;max-width:320px;background:#fff;z-index:60;
+  transform:translateX(-102%);transition:transform .22s ease;overflow-y:auto;
+  box-shadow:6px 0 30px -12px rgba(31,35,23,.5)}
+.drawer.on{transform:translateX(0)}
+@media(max-width:519px){.drawer{position:fixed}}
+.dhead{background:var(--head);color:var(--head-ink);padding:18px 18px 16px}
+.dhead .av{width:46px;height:46px;background:#33465A;color:var(--head-ink);font-size:15px}
+.dhead b{display:block;font-size:16px;font-weight:600;margin-top:10px}
+.dhead small{color:#BFC3B0;font-size:12.5px}
+.dsec{font-size:11.5px;font-weight:600;color:var(--muted);padding:16px 18px 4px;letter-spacing:.02em}
+.drow{display:flex;align-items:center;gap:13px;width:100%;padding:12px 18px;font-size:15px}
+.drow svg{width:21px;height:21px;stroke:var(--muted);fill:none;stroke-width:1.7;flex:none}
+.drow.on{background:var(--steen-50);font-weight:700}
+.drow.on svg{stroke:var(--steen-600)}
+.drow .bad{margin-left:auto;font-size:11px;font-weight:600;padding:2px 8px;border-radius:8px;
+  background:#F8E7E4;color:var(--red)}
+
+/* ---------- sheet ---------- */
+.scrim{position:fixed;inset:0;background:rgba(31,35,23,.45);opacity:0;pointer-events:none;transition:opacity .18s;z-index:40}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:50;background:#fff;border-radius:22px 22px 0 0;
+  transform:translateY(103%);transition:transform .22s ease;max-height:90%;overflow-y:auto;
+  box-shadow:0 -10px 34px -14px rgba(31,35,23,.45)}
+.sheet.on{transform:translateY(0)}
+@media(max-width:519px){.sheet{position:fixed}}
+.grab{width:38px;height:4px;border-radius:2px;background:var(--line);margin:10px auto 0}
+.sheet h3{margin:14px 16px 2px;font-family:var(--display);font-weight:400;font-size:20px;letter-spacing:.01em}
+.sheet .sub{margin:0 16px;color:var(--muted);font-size:13px}
+
+/* ---------- tabbar ---------- */
+.tabs{display:flex;border-top:1px solid var(--line);background:#fff;flex:none;
+  padding:7px 2px calc(7px + env(safe-area-inset-bottom))}
+.tab{flex:1;text-align:center;color:#7C8174;font-size:11px;font-weight:400;padding:2px 0}
+.tab svg{display:block;margin:0 auto 3px;width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.7}
+.tab.on{color:var(--steen-600);font-weight:700}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ================= brede schermen: laptop en desktop ================= */
+@media (min-width:700px) and (max-width:1023px){
+  .device{max-width:560px}
+}
+@media (min-width:1024px){
+  body{background:var(--bg);padding:0}
+  .device{max-width:none;width:100%;height:100dvh;min-height:0;border-radius:0;box-shadow:none;
+    display:grid;grid-template-columns:272px 1fr;grid-template-rows:auto 1fr;overflow:hidden}
+  /* menu wordt een vaste zijbalk */
+  .drawer{position:relative;grid-column:1;grid-row:1 / 3;width:272px;max-width:none;
+    transform:none!important;box-shadow:none;border-right:1px solid var(--line);background:#FCFCFA}
+  .dhead{padding:20px 20px 18px}
+  .drow{padding:11px 20px;font-size:14.5px}
+  .drow:hover{background:var(--soft)}
+  .dsec{padding:18px 20px 4px}
+  .hdr{grid-column:2;grid-row:1}
+  main{grid-column:2;grid-row:2}
+  .tabs{display:none}
+  .hrow{padding:16px 28px 13px;min-height:64px}
+  .hrow [data-act="menu"]{display:none}
+  .hrow .mid,.logo{text-align:left}
+  .htabs{padding:0 22px}
+  .htab{flex:0 0 auto;padding:8px 22px 10px}
+  .htab.on:after{left:14px;right:14px}
+  /* inhoud niet eindeloos uitrekken */
+  .screen{max-width:940px;margin:0 auto;padding:0 12px 48px}
+  .stats{grid-template-columns:repeat(4,1fr);padding:20px 16px 8px}
+  .mini{grid-template-columns:repeat(4,1fr)}
+  .slots{grid-template-columns:repeat(5,1fr)}
+  .btnrow{max-width:460px}
+  .savebar{max-width:520px}
+  /* agenda krijgt lucht */
+  :root{--col:118px;--half:54px}
+  .tlg{width:78px}
+  .wkhead .d,.wkcol{width:118px}
+  .wkg div,.wkcol .lines div{height:38px}
+  .ev .n{font-size:15px}
+  /* sessiekaarten naast elkaar */
+  #s-dashboard .dcard{border:1px solid var(--line);border-radius:14px;margin:8px 16px;padding:14px 16px}
+  #s-dashboard .daymark{padding-top:18px}
+  /* bladen worden vensters in het midden */
+  .sheet{position:fixed;left:50%;top:50%;right:auto;bottom:auto;width:min(620px,92vw);max-height:86vh;
+    border-radius:18px;transform:translate(-50%,-46%);opacity:0;pointer-events:none;
+    transition:opacity .16s ease,transform .16s ease;box-shadow:0 24px 60px -20px rgba(31,35,23,.5)}
+  .sheet.on{transform:translate(-50%,-50%);opacity:1;pointer-events:auto}
+  .grab{display:none}
+  .sheet h3{margin-top:18px}
+  .krow:hover,.dcard:hover,.card.tap:hover,.donecard:hover{background:var(--soft)}
+  tbody tr:hover td,tbody tr:hover .stick{background:var(--soft)}
+}
+@media (min-width:1440px){
+  .screen{max-width:1180px}
+  .stats{grid-template-columns:repeat(4,1fr)}
+}
+
+/* ---------- weekweergave voor laptop en pc ---------- */
+.wk7{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.wk7head{display:flex;position:sticky;top:0;z-index:6;background:#fff;border-bottom:1px solid var(--line)}
+.wk7gut{width:80px;flex:none;border-right:1px solid var(--line)}
+.wk7d{flex:1;text-align:center;padding:9px 0;border-right:1px solid var(--line-2);font-size:12.5px;color:var(--muted)}
+.wk7d:last-child{border-right:0}
+.wk7d b{display:block;font-family:var(--display);font-weight:400;font-size:18px;color:var(--ink);margin-top:1px}
+.wk7d.today b{background:var(--steen);color:#fff;border-radius:9px;padding:0 9px;display:inline-block}
+.wk7d small{display:block;font-size:11px;color:#A3A89A}
+.wk7body{display:flex;position:relative}
+.wk7gut.hours div{height:42px;font-size:12px;color:#7C8174;text-align:right;padding-right:9px;transform:translateY(-8px)}
+.wk7cols{flex:1;display:flex}
+.wk7col{flex:1;min-width:0;position:relative;border-right:1px solid var(--line-2)}
+.wk7col:last-child{border-right:0}
+.wk7col.today{background:#FAFBF6}
+.wk7col .lines div{height:42px;border-bottom:1px dotted #E2E3DC}
+.wk7col .lines div.hour{border-bottom:1px solid var(--line)}
+.wk7col .leeg{position:absolute;top:14px;left:0;right:0;text-align:center;font-size:12px;color:#B4B8AC}
+
+.legend{display:flex;gap:16px;flex-wrap:wrap;padding:12px 16px 0;font-size:12.5px;color:var(--muted);font-weight:500}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block;margin-right:6px;vertical-align:-1px}
+</style>
+
+<div class="device">
+  <header class="hdr">
+    <div class="hrow" id="hrow"></div>
+    <div class="htabs" id="htabs" style="display:none"></div>
+  </header>
+
+  <main id="main">
+    <section class="screen on" id="s-dashboard"></section>
+    <section class="screen" id="s-agenda"></section>
+    <section class="screen" id="s-klanten"></section>
+    <section class="screen" id="s-updates"></section>
+    <section class="screen" id="s-meer"></section>
+    <section class="screen" id="s-klant"></section>
+    <section class="screen" id="s-chat"></section>
+    <section class="screen" id="s-beschik"></section>
+    <section class="screen" id="s-beschikedit"></section>
+    <section class="screen" id="s-cijfers"></section>
+    <section class="screen" id="s-rooster"></section>
+    <section class="screen" id="s-financien"></section>
+    <section class="screen" id="s-roosterform"></section>
+  </main>
+
+  <nav class="tabs" id="tabs"></nav>
+
+  <aside class="drawer" id="drawer"></aside>
+  <div class="sheet" id="sheet"><div class="grab"></div><div id="sheetbody"></div><div class="spacer"></div></div>
+</div>
+<div class="scrim" id="scrim"></div>
+
+<script>
+/* =============== data =============== */
+const NOW={day:4,min:14*60+48};           // vr 4 sep 2026, 14:48
+const DAYS=[
+ {k:'ma',lang:'Maandag',d:31,m:'Augustus',ms:'aug'},
+ {k:'di',lang:'Dinsdag',d:1,m:'September',ms:'sep'},
+ {k:'wo',lang:'Woensdag',d:2,m:'September',ms:'sep'},
+ {k:'do',lang:'Donderdag',d:3,m:'September',ms:'sep'},
+ {k:'vr',lang:'Vrijdag',d:4,m:'September',ms:'sep',today:true},
+ {k:'za',lang:'Zaterdag',d:5,m:'September',ms:'sep'},
+ {k:'zo',lang:'Zondag',d:6,m:'September',ms:'sep'},
+ {k:'ma',lang:'Maandag',d:7,m:'September',ms:'sep'},
+ {k:'di',lang:'Dinsdag',d:8,m:'September',ms:'sep'}
+];
+const TRAINERS=['Alle','Jeroen','Sanne','Milan'];
+
+const S=[
+ {d:0,t:'06:30',dur:45,ty:'club',n:'CORE | KRACHT',tr:'Jeroen',cap:6,bk:6},
+ {d:0,t:'09:30',dur:45,ty:'club',n:'KRACHT',tr:'Sanne',cap:6,bk:4},
+ {d:0,t:'12:00',dur:45,ty:'pt',n:'Personal Training Youssef',tr:'Milan',cap:1,bk:1,who:'youssef'},
+ {d:0,t:'17:30',dur:45,ty:'club',n:'HYBRID',tr:'Jeroen',cap:6,bk:5},
+ {d:0,t:'18:30',dur:45,ty:'club',n:'CORE | KRACHT',tr:'Jeroen',cap:6,bk:6},
+ {d:0,t:'19:30',dur:45,ty:'club',n:'KRACHT',tr:'Sanne',cap:6,bk:3},
+
+ {d:1,t:'07:00',dur:45,ty:'club',n:'KRACHT',tr:'Sanne',cap:6,bk:5},
+ {d:1,t:'09:00',dur:60,ty:'fund',n:'Fundament Bram',tr:'Milan',cap:1,bk:1,who:'bram'},
+ {d:1,t:'10:00',dur:45,ty:'pt',n:'Personal Training Iris',tr:'Jeroen',cap:1,bk:1,who:'iris'},
+ {d:1,t:'18:00',dur:45,ty:'club',n:'HYBRID',tr:'Milan',cap:6,bk:6},
+ {d:1,t:'19:00',dur:45,ty:'club',n:'CORE | KRACHT',tr:'Jeroen',cap:6,bk:4},
+
+ {d:2,t:'06:30',dur:45,ty:'club',n:'CORE | KRACHT',tr:'Jeroen',cap:6,bk:4},
+ {d:2,t:'09:30',dur:45,ty:'club',n:'HYBRID',tr:'Sanne',cap:6,bk:3},
+ {d:2,t:'11:00',dur:45,ty:'pt',n:'Personal Training Fatima',tr:'Sanne',cap:1,bk:1,who:'fatima'},
+ {d:2,t:'17:30',dur:45,ty:'club',n:'KRACHT',tr:'Milan',cap:6,bk:6},
+ {d:2,t:'18:30',dur:45,ty:'club',n:'CORE | KRACHT',tr:'Milan',cap:6,bk:5},
+
+ {d:3,t:'07:00',dur:45,ty:'club',n:'HYBRID',tr:'Jeroen',cap:6,bk:5},
+ {d:3,t:'09:00',dur:45,ty:'pt',n:'Personal Training Daan',tr:'Milan',cap:1,bk:1,who:'daan'},
+ {d:3,t:'12:00',dur:60,ty:'fund',n:'Fundament Naomi',tr:'Sanne',cap:1,bk:1,who:'naomi'},
+ {d:3,t:'18:00',dur:45,ty:'club',n:'CORE | KRACHT',tr:'Sanne',cap:6,bk:6},
+ {d:3,t:'19:00',dur:45,ty:'club',n:'KRACHT',tr:'Jeroen',cap:6,bk:2},
+
+ {d:4,t:'06:30',dur:45,ty:'club',n:'CORE | KRACHT',tr:'Jeroen',cap:6,bk:5},
+ {d:4,t:'07:30',dur:45,ty:'pt',n:'Personal Training Youssef',tr:'Milan',cap:1,bk:1,who:'youssef'},
+ {d:4,t:'09:30',dur:45,ty:'club',n:'HYBRID',tr:'Sanne',cap:6,bk:4},
+ {d:4,t:'09:30',dur:45,ty:'pt',n:'Personal Training Daan',tr:'Jeroen',cap:1,bk:1,who:'daan'},
+ {d:4,t:'11:00',dur:45,ty:'pt',n:'Personal Training Eva',tr:'Jeroen',cap:1,bk:1,who:'eva'},
+ {d:4,t:'11:00',dur:45,ty:'pt',n:'Personal Training Fatima',tr:'Sanne',cap:1,bk:1,who:'fatima'},
+ {d:4,t:'12:00',dur:60,ty:'fund',n:'Fundament Bram',tr:'Milan',cap:1,bk:1,who:'bram'},
+ {d:4,t:'17:00',dur:45,ty:'club',n:'CORE | KRACHT',tr:'Milan',cap:6,bk:6,
+  focus:'Blok 3, week 2 — back squat 5×3 op RPE 8, afsluiten met sled push.',
+  notes:[['blessure','Fatima El Amrani','knie is klaar voor sprongen — box step-ups, nog geen box jumps'],
+         ['vrij','Ruben Aalders','derde sessie deze week, houd het volume laag'],
+         ['afmelding','Vol','geen ruimte om iemand bij te boeken']]},
+ {d:4,t:'18:00',dur:45,ty:'club',n:'CORE | KRACHT',tr:'Jeroen',cap:6,bk:3,
+  focus:'Blok 3, week 2 — back squat 5×3, daarna rompwerk in koppels.',
+  notes:[['blessure','Eva de Groot','linkerschouder gevoelig — landmine press, geen strict press'],
+         ['afmelding','Tim Hoekstra','vanochtend 05:10 afgemeld, credit geldig t/m vr 11 sep'],
+         ['vrij','3 plekken vrij','Lisa vroeg om een extra moment — even aanbieden']]},
+ {d:4,t:'19:00',dur:45,ty:'club',n:'KRACHT',tr:'Sanne',cap:6,bk:2,
+  focus:'Deadlift 5×3, opbouw naar de test in week 4.',
+  notes:[['credit','Iris Kuipers','PT-credit vervalt morgen en er staat niets ingepland'],
+         ['vrij','4 plekken vrij','laatste les van de week, prima moment om bij te boeken']]},
+
+ {d:5,t:'08:30',dur:45,ty:'club',n:'HYBRID',tr:'Sanne',cap:6,bk:6,
+  focus:'Intervallen 4×4 minuten roeien, daarna kettlebell complex.',
+  notes:[['nieuw','Naomi Willemse','eerste groepsles na haar Fundament — loop de opzet vooraf met haar door'],
+         ['afmelding','Vol','wachtlijst loopt via een bericht']]},
+ {d:5,t:'09:30',dur:45,ty:'club',n:'KRACHT',tr:'Sanne',cap:6,bk:4,
+  focus:'Deadlift 5×3 en unilateraal beenwerk.',
+  notes:[['vrij','Ruben Aalders','wil meedoen aan de teamchallenge in oktober — inschrijving meegeven'],
+         ['vrij','2 plekken vrij','']]},
+ {d:5,t:'10:30',dur:45,ty:'pt',n:'Personal Training Tim',tr:'Milan',cap:1,bk:1,who:'tim',
+  focus:'Terugkomsessie na 11 dagen — rustig opbouwen, techniek squat opnieuw doornemen.',
+  notes:[['credit','Tim Hoekstra','3 credits open, waarvan 2 vervallen zondag — samen inplannen'],
+         ['vrij','Annulering 22%','vraag hoe zijn werkweken er de komende maand uitzien']]},
+
+ {d:7,t:'06:30',dur:45,ty:'club',n:'CORE | KRACHT',tr:'Jeroen',cap:6,bk:5,
+  focus:'Start nieuw blok — inschatting 1RM squat, daarna technisch werk.',
+  notes:[['nieuw','Bram de Wit','eerste clubles na zijn Fundament Traject'],
+         ['vrij','1 plek vrij','']]},
+ {d:7,t:'07:30',dur:45,ty:'pt',n:'Personal Training Bob',tr:'Jeroen',cap:1,bk:1},
+ {d:7,t:'09:30',dur:45,ty:'club',n:'KRACHT',tr:'Sanne',cap:6,bk:3},
+ {d:8,t:'07:00',dur:45,ty:'club',n:'HYBRID',tr:'Sanne',cap:6,bk:4}
+];
+S.forEach((s,i)=>s.id=i);
+/* al ingeplande intakes uit de leads staan ook in de agenda */
+S.push({id:S.length,d:3,t:'13:00',dur:20,ty:'intake',n:'Intake Priya',tr:'Sanne',cap:1,bk:1,lead:'l3',
+ deelnemers:[],att:{},credit:{},focus:'Reed langs en zag de studio. Wil weten hoe klein de groepen zijn.'});
+S.push({id:S.length,d:5,t:'12:00',dur:20,ty:'intake',n:'Intake Kevin',tr:'Jeroen',cap:1,bk:1,lead:'l2',
+ deelnemers:[],att:{},credit:{},focus:'Wil af van rugklachten door zittend werk. Heeft zelf een intake aangevraagd via de site.',
+ notes:[['nieuw','Kevin Aalbers','Website, intake aangevraagd — gisteren']]});
+
+/* ---- deelnemers, aanwezigheid en rollen ---- */
+const USERS=[
+ {naam:'Jeroen',full:'Jeroen van Tongeren',rol:'eigenaar',rl:'Eigenaar'},
+ {naam:'Sanne',full:'Sanne de Bruijn',rol:'trainer',rl:'Trainer'},
+ {naam:'Milan',full:'Milan Verschuur',rol:'trainer',rl:'Trainer'}
+];
+let ME=USERS[0];
+const canEdit=x=>ME.rol==='eigenaar'||x.tr===ME.naam;
+const POOL=['eva','ruben','lisa','tim','fatima','iris','youssef','naomi','bram','daan'];
+const VAST={
+ '4|17:00':['fatima','ruben','youssef','lisa','iris','daan'],
+ '4|18:00':['eva','ruben','lisa'],
+ '4|19:00':['iris','bram'],
+ '4|06:30':['eva','lisa','ruben','bram','iris'],
+ '4|09:30':['fatima','naomi','tim','daan'],
+ '5|08:30':['naomi','eva','lisa','ruben','fatima','iris'],
+ '5|09:30':['ruben','tim','bram','daan'],
+ '7|06:30':['bram','eva','lisa','ruben','iris']
+};
+const MND=['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+const DK=['zo','ma','di','wo','do','vr','za'];
+const NU=new Date(2026,8,4,14,48);
+const sessDate=x=>new Date(2026,DAYS[x.d].m==='Augustus'?7:8,DAYS[x.d].d,+x.t.slice(0,2),+x.t.slice(3));
+const kort=d=>`${DK[d.getDay()]} ${d.getDate()} ${MND[d.getMonth()].slice(0,3)}`;
+const venster=x=>x.ty==='pt'?24:12;
+const geldig=x=>x.ty==='pt'?14:7;
+const opTijd=x=>(sessDate(x)-NU)/36e5>=venster(x);
+
+S.forEach((s,i)=>{
+ s.att={};s.credit={};
+ if(s.cap>1){
+  s.deelnemers=VAST[s.d+'|'+s.t]||Array.from({length:s.bk},(_,j)=>POOL[(i*3+j)%POOL.length]);
+  s.deelnemers=[...new Set(s.deelnemers)].slice(0,s.bk);
+ }else s.deelnemers=s.who?[s.who]:[];
+ s.deelnemers.forEach(id=>s.att[id]='open');
+});
+/* twee klanten hebben zich al eerder afgemeld voor de sessie van vrijdag 18:00 */
+(()=>{const x=S.find(s=>s.d===4&&s.t==='18:00');
+ x.deelnemers.push('tim','youssef');
+ x.att.tim='afgemeld';x.credit.tim={op:'do 3 sep 14:20',tot:'do 10 sep'};
+ x.att.youssef='afgemeld';x.credit.youssef={op:'vandaag 05:10',tot:'vr 11 sep'};})();
+/* de ochtendsessies van vandaag zijn al geweest maar nog niet afgevinkt */
+const STL={open:'Nog niet afgevinkt',aanwezig:'Aanwezig',afwezig:'Afwezig',afgemeld:'Afgemeld'};
+const isVoorbij=x=>sessDate(x).getTime()+x.dur*6e4<NU;
+
+/* ---- afmeldingen: deze week live uit de sessies, daarvoor uit de historie ---- */
+[['0','19:30','naomi','ma 31 aug 07:10','za 6 sep'],
+ ['1','07:00','tim','zo 30 aug 21:40','zo 6 sep'],
+ ['2','06:30','iris','di 1 sep 18:05','di 8 sep'],
+ ['2','18:30','naomi','wo 2 sep 05:30',null],
+ ['3','18:00','daan','wo 2 sep 19:12','wo 9 sep'],
+ ['3','19:00','fatima','do 3 sep 06:00','do 10 sep'],
+ ['4','09:30','naomi','do 3 sep 20:15','do 10 sep']].forEach(([d,t,id,op,tot])=>{
+  const x=S.find(s=>s.d===+d&&s.t===t);
+  if(!x||x.att[id]==='afgemeld')return;
+  if(x.deelnemers.includes(id))x.bk=Math.max(0,x.bk-1); else x.deelnemers.push(id);
+  x.att[id]='afgemeld';x.credit[id]={op,tot};
+ });
+const MND4=['jul','aug','sep'];
+const AFM=[];                       /* historie: week 29 t/m 35, wordt bij eerste gebruik opgebouwd */
+function bouwAfm(){
+ if(AFM.length)return;
+ /* trek klanten in verhouding tot hun eigen annuleringspercentage, anders spreekt de
+    historie het profiel tegen: Naomi 38% moet vaker voorkomen dan Ruben 4% */
+ const kl=[];
+ K.filter(k=>k.st==='Actief').forEach(k=>{
+  const w=Math.max(1,Math.round(parseFloat(k.ann)||1));
+  for(let i=0;i<w;i++)kl.push(k);
+ });
+ let seed=97; const rnd=()=>(seed=(seed*1103515245+12345)%2147483648)/2147483648;
+ const perWeek={29:9,30:12,31:7,32:14,33:10,34:8,35:13};
+ Object.entries(perWeek).forEach(([wk,n])=>{
+  const w=+wk;
+  for(let i=0;i<n;i++){
+   const k=kl[Math.floor(rnd()*kl.length)];
+   const r=rnd(), ty=k.p==='pt'?'pt':k.p==='fund'?(r<.6?'fund':'club'):r<.8?'club':'pt';
+   AFM.push({wk:w,mnd:w>=35?'aug':w>=31?'aug':w>=27?'jul':'jun',ty,id:k.id,laat:rnd()<.17});
+  }
+ });
+}
+const liveAfm=()=>{const out=[];
+ S.forEach(x=>{if(x.d>6)return;
+  x.deelnemers.forEach(id=>{if(x.att[id]==='afgemeld'){
+   const c=x.credit[id]||{};
+   out.push({wk:36,mnd:DAYS[x.d].ms,ty:x.ty,id,laat:!c.tot,act:x.n,op:c.op||'deze week',tot:c.tot,sid:x.id,d:x.d,t:x.t});
+  }});
+ });
+ return out.sort((a,b)=>b.d-a.d||mins(b.t)-mins(a.t));
+};
+const alleAfm=()=>{bouwAfm();return [...AFM,...liveAfm()]};
+const GEB={wk:{29:141,30:150,31:138,32:147,33:152,34:144,35:149,36:147},
+           mnd:{jun:590,jul:565,aug:610,sep:147},
+           ty:{club:1490,pt:352,fund:60}};
+
+let SID=S.length;
+const sess=id=>S.find(s=>String(s.id)===String(id));
+
+/* ---- rooster: activiteiten en reeksen ---- */
+const ACTIVITEITEN=[
+ {naam:'CORE | KRACHT',ty:'club',dur:45,cap:6,tarief:'17,50'},
+ {naam:'KRACHT',ty:'club',dur:45,cap:6,tarief:'17,50'},
+ {naam:'HYBRID',ty:'club',dur:45,cap:6,tarief:'17,50'},
+ {naam:'Personal Training',ty:'pt',dur:45,cap:1,tarief:'65,00'},
+ {naam:'Fundament Traject',ty:'fund',dur:60,cap:1,tarief:'—'},
+ {naam:'Intakegesprek op locatie',ty:'intake',dur:20,cap:1,tarief:'gratis',gratis:true}
+];
+let REEKSEN=[
+ {id:1,act:'CORE | KRACHT',tr:'Jeroen',dagen:[0,2,4],t:'06:30',dur:45,cap:6,start:'01-09-2025',eind:null,actief:true},
+ {id:2,act:'KRACHT',tr:'Sanne',dagen:[0,5],t:'09:30',dur:45,cap:6,start:'01-09-2025',eind:null,actief:true},
+ {id:3,act:'HYBRID',tr:'Sanne',dagen:[5],t:'08:30',dur:45,cap:6,start:'01-01-2026',eind:null,actief:true},
+ {id:4,act:'CORE | KRACHT',tr:'Jeroen',dagen:[0],t:'18:30',dur:45,cap:6,start:'01-09-2025',eind:null,actief:true}
+];
+let RID=10;
+/* bestaande sessies koppelen aan hun reeks */
+REEKSEN.forEach(r=>S.forEach(s=>{
+ const wd=s.d<7?s.d:s.d-7;
+ if(s.n===r.act&&s.t===r.t&&s.tr===r.tr&&r.dagen.includes(wd))s.rid=r.id;
+}));
+function genReeks(r){
+ for(let i=S.length-1;i>=0;i--){const s=S[i];if(s.rid===r.id&&!isVoorbij(s))S.splice(i,1)}
+ if(!r.actief)return 0;
+ const a=ACTIVITEITEN.find(a=>a.naam===r.act)||{ty:'club'};
+ let n=0;
+ for(let d=0;d<9;d++){
+  const wd=d<7?d:d-7;
+  if(!r.dagen.includes(wd))continue;
+  if(d<NOW.day||(d===NOW.day&&mins(r.t)<=NOW.min))continue;
+  S.push({id:SID++,d,t:r.t,dur:r.dur,ty:a.ty,n:r.act,tr:r.tr,cap:r.cap,bk:0,rid:r.id,
+   deelnemers:[],att:{},credit:{}});
+  n++;
+ }
+ return n;
+}
+const teVinken=()=>S.filter(x=>isVoorbij(x)&&sessDate(x).getDate()===4&&sessDate(x).getMonth()===8
+  &&x.deelnemers.some(id=>x.att[id]==='open'));
+
+const K=[
+ {id:'eva',n:'Eva de Groot',ini:'EG',p:'pt_club',prod:'Clubtraining GROEI + Personal Training BASIS',cr:[1,0],lb:'wo 2 sep',st:'Actief',
+  freq:'1,8×/wk',ann:'8%',sinds:'mrt 2024',tel:'06 24 88 19 07',mail:'eva.degroot@gmail.com',bez:'94%',tot:214,fav:'CORE | KRACHT',
+  note:{a:'Sanne',t:'do 3 sep',x:'Linkerschouder gevoelig bij overhead press. Bench en landmine wel, geen strict press. Checken over twee weken.'},
+  next:'vr 4 sep 18:00 — CORE | KRACHT',last:'wo 2 sep 06:30 — CORE | KRACHT',warn:'Credit vervalt zaterdag 5 september'},
+ {id:'youssef',n:'Youssef Bakker',ini:'YB',p:'pt',prod:'Personal Training GROEI',cr:[2,0],lb:'vr 4 sep',st:'Actief',
+  freq:'1,9×/wk',ann:'11%',sinds:'jan 2023',tel:'06 11 45 20 66',mail:'y.bakker@outlook.com',bez:'90%',tot:398,fav:'Personal Training',
+  note:{a:'Milan',t:'vr 4 sep',x:'Deadlift 140 kg × 3 gehaald. Volgend blok terug naar 5×3 op 125.'},
+  next:'ma 7 sep 12:00 — Personal Training',last:'vr 4 sep 07:30 — Personal Training'},
+ {id:'lisa',n:'Lisa Vermeulen',ini:'LV',p:'club',prod:'Clubtraining GROEI',cr:[1,0],lb:'do 3 sep',st:'Actief',
+  freq:'1,7×/wk',ann:'6%',sinds:'sep 2022',tel:'06 39 71 55 12',mail:'lisavermeulen@ziggo.nl',bez:'96%',tot:462,fav:'HYBRID',
+  note:{a:'Jeroen',t:'di 25 aug',x:'Vraagt naar zaterdagochtend erbij. Doorgeven zodra er plek vrijkomt in de 09:30.'},
+  next:'vr 4 sep 18:00 — CORE | KRACHT',last:'do 3 sep 19:00 — KRACHT'},
+ {id:'tim',n:'Tim Hoekstra',ini:'TH',p:'club',prod:'Clubtraining BASIS',cr:[1,2],lb:'ma 24 aug',st:'Actief',att:true,
+  freq:'0,6×/wk',ann:'22%',sinds:'nov 2024',tel:'06 52 10 84 30',mail:'t.hoekstra@gmail.com',bez:'71%',tot:88,fav:'CORE | KRACHT',
+  note:{a:'Jeroen',t:'wo 26 aug',x:'Drukke periode op werk. Even bellen, anders zakt hij eruit.'},
+  next:'za 5 sep 10:30 — Personal Training',last:'ma 24 aug 18:30 — CORE | KRACHT',warn:'2 credits vervallen zondag 6 september'},
+ {id:'naomi',n:'Naomi Willemse',ini:'NW',p:'fund',prod:'Fundament Traject, 4 van 4 afgerond',cr:[0,0],lb:'do 3 sep',st:'Actief',sig:true,
+  traject:{klaar:true,afgerond:'donderdag 3 september',advies:'club',
+   form:{Doel:'Fitter worden en afvallen',Ervaring:'Nauwelijks',Blessures:'Geen, wel gevoelige knieën',
+     'Voorkeur dagen':'Donderdag','Akkoord privacyverklaring':'Ja, 6 augustus'},
+   log:[[1,'Sanne','Techniek squat: knieën vallen naar binnen zodra er gewicht bij komt. Rustig opgebouwd.'],
+        [2,'Sanne','Gaat beter, maar klaagt na afloop over de rechterknie.'],
+        [3,'Sanne','Knieklachten na de training. Belasting verlaagd, geen sprongen meer.'],
+        [4,'Sanne','Minder klachten bij lagere belasting. Vraagt veel bevestiging over de uitvoering.']]},
+  freq:'1,0×/wk',ann:'38%',sinds:'aug 2026',tel:'06 18 92 44 71',mail:'naomi.willemse@icloud.com',bez:'62%',tot:6,fav:'Fundament',
+  note:{a:'Sanne',t:'do 3 sep',x:'Zenuwachtig over de doorstroom naar de groep. Zaterdag mee laten lopen in HYBRID.'},
+  next:'za 5 sep 08:30 — HYBRID',last:'do 3 sep 12:00 — Fundament'},
+ {id:'ruben',n:'Ruben Aalders',ini:'RA',p:'club',prod:'Clubtraining ONBEPERKT',cr:[2,0],lb:'do 3 sep',st:'Actief',
+  freq:'2,6×/wk',ann:'4%',sinds:'feb 2021',tel:'06 47 30 12 98',mail:'r.aalders@kpnmail.nl',bez:'97%',tot:721,fav:'CORE | KRACHT',
+  note:{a:'Milan',t:'vr 28 aug',x:'Wil in oktober meedoen aan de teamchallenge. Inschrijving meegeven.'},
+  next:'vr 4 sep 17:00 — CORE | KRACHT',last:'do 3 sep 07:00 — HYBRID'},
+ {id:'fatima',n:'Fatima El Amrani',ini:'FA',p:'pt_club',prod:'Clubtraining BASIS + Personal Training BASIS',cr:[1,1],lb:'vr 4 sep',st:'Actief',
+  freq:'1,4×/wk',ann:'9%',sinds:'mei 2025',tel:'06 21 66 39 04',mail:'f.elamrani@gmail.com',bez:'89%',tot:97,fav:'Personal Training',
+  note:{a:'Sanne',t:'vr 4 sep',x:'Knie voelt goed na revalidatie. Vanaf vandaag springen opbouwen: eerst step-ups, over twee weken box jumps.'},
+  next:'vr 4 sep 17:00 — CORE | KRACHT',last:'vr 4 sep 11:00 — Personal Training',warn:'Credit vervalt zondag 6 september'},
+ {id:'daan',n:'Daan Prins',ini:'DP',p:'pt',prod:'Rittenkaart PT, 25 sessies',kaart:{over:18,totaal:25,tot:'12 maart 2027'},cr:[0,0],lb:'vr 4 sep',st:'Actief',
+  freq:'1,0×/wk',ann:'12%',sinds:'okt 2023',tel:'06 30 77 51 82',mail:'daanprins@hotmail.com',bez:'88%',tot:143,fav:'Personal Training',
+  note:{a:'Milan',t:'do 3 sep',x:'Vroeg om een extra sessie deze week. Doorverwezen naar bijboeken in de klantapp.'},
+  next:'do 10 sep 09:00 — Personal Training',last:'vr 4 sep 09:30 — Personal Training'},
+ {id:'iris',n:'Iris Kuipers',ini:'IK',p:'pt_club',prod:'Clubtraining GROEI + Personal Training BASIS',cr:[0,1],lb:'di 1 sep',st:'Actief',
+  freq:'1,5×/wk',ann:'15%',sinds:'jun 2024',tel:'06 14 05 73 26',mail:'iris.kuipers@gmail.com',bez:'85%',tot:176,fav:'HYBRID',
+  note:{a:'Jeroen',t:'di 1 sep',x:'Reist tot half oktober veel voor werk. Losse momenten inplannen, niet vastzetten in een reeks.'},
+  next:'geen',last:'di 1 sep 10:00 — Personal Training',warn:'Credit vervalt morgen'},
+ {id:'bram',n:'Bram de Wit',ini:'BW',p:'fund',prod:'Fundament Traject, 4 van 4 afgerond',cr:[0,0],lb:'vr 4 sep',st:'Actief',
+  traject:{klaar:true,afgerond:'vrijdag 4 september',advies:'club',
+   form:{Doel:'Sterker worden',Ervaring:'Vroeger gefitnest',Blessures:'Geen',
+     'Voorkeur dagen':'Maandag en donderdag, vroeg','Akkoord privacyverklaring':'Ja, 8 augustus'},
+   log:[[1,'Milan','Snel begrip van de basis, houding is goed.'],
+        [2,'Milan','Squat en deadlift technisch in orde bij matige belasting.'],
+        [3,'Milan','Techniek squat zit goed. Klaar voor de groep.'],
+        [4,'Milan','Tempo goed, kan zelfstandig werken in een groep.']]},
+  freq:'1,0×/wk',ann:'0%',sinds:'aug 2026',tel:'06 43 19 62 55',mail:'bramdewit@live.nl',bez:'100%',tot:5,fav:'Fundament',
+  note:{a:'Milan',t:'vr 4 sep',x:'Techniek squat zit goed. Klaar voor de groep vanaf maandag.'},
+  next:'nog niets, wacht op de evaluatie',last:'vr 4 sep 12:00 — Fundament 4 van 4'},
+ {id:'sander',n:'Sander Rietveld',ini:'SR',p:'club',prod:'Geen actief product',cr:[0,0],lb:'vr 12 jun',st:'Inactief',
+  freq:'0×/wk',ann:'—',sinds:'apr 2022',tel:'06 27 84 11 39',mail:'s.rietveld@gmail.com',bez:'—',tot:311,fav:'CORE | KRACHT',
+  note:{a:'Jeroen',t:'ma 15 jun',x:'Abonnement gepauzeerd na verhuizing naar Rotterdam. Belt zelf als hij terugkomt.'},
+  next:'geen',last:'vr 12 jun 18:00 — CORE | KRACHT'}
+];
+const KI=Object.fromEntries(K.map(k=>[k.id,k]));
+/* meldingsvoorkeur per klant — de klant zet dit zelf in zijn app, hier alleen zichtbaar */
+K.forEach(k=>k.meld=true);
+KI.ruben.meld=false; KI.sander.meld=false; KI.lisa.meld=true;
+/* wie zou een vrijgekomen plek kunnen claimen: actief, niet al ingeschreven, geldige credit van het juiste soort */
+const kandidaten=x=>K.filter(k=>k.st==='Actief'&&!x.deelnemers.includes(k.id)
+  &&(k.cr[0]+k.cr[1])>0&&(x.ty==='pt'?k.p.includes('pt'):k.p!=='pt'));
+const PLAB={pt_club:['PT + Club','b-both'],pt:['PT','b-pt'],club:['Club','b-club'],fund:['Fundament 4×','b-fund']};
+
+/* ---- lidmaatschappen en losse verkoop ----
+   groep: club | pt | combi | traject | kaart | los
+   wijze: incasso (maandelijks automatisch) | eenmalig (factuur met betaallink) | los | gratis */
+const TARIEVEN=[
+ {naam:'Clubtraining BASIS',sessies:1,groep:'club',oms:'1 clubtraining per week',prijs:79,aantal:18,wijze:'incasso'},
+ {naam:'Clubtraining GROEI',sessies:2,groep:'club',oms:'2 clubtrainingen per week',prijs:109,aantal:20,wijze:'incasso'},
+ {naam:'Clubtraining ONBEPERKT',sessies:3,groep:'club',oms:'3 clubtrainingen per week',prijs:129,aantal:9,wijze:'incasso'},
+ {naam:'Personal Training BASIS',sessies:1,groep:'pt',oms:'1 PT per week',prijs:229,aantal:8,wijze:'incasso'},
+ {naam:'Personal Training GROEI',sessies:2,groep:'pt',oms:'2 PT per week',prijs:429,aantal:5,wijze:'incasso'},
+ {naam:'Personal Training ONBEPERKT',sessies:3,groep:'pt',oms:'3 PT per week',prijs:595,aantal:2,wijze:'incasso'},
+ {naam:'Combi 1 PT + 1 Club',groep:'combi',oms:'1 PT en 1 clubtraining per week',prijs:279,aantal:0,
+  wijze:'incasso',concept:true},
+ {naam:'Rittenkaart PT, 25 sessies',groep:'kaart',oms:'25 PT-sessies, 12 maanden geldig',prijs:1375,aantal:4,
+  maand:1,wijze:'eenmalig',ritten:25},
+ {naam:'Fundament Traject',groep:'traject',oms:'4 begeleide trainingen in 4 weken. Verplicht voor iedere nieuwe klant, daarna de keuze tussen Club en PT.',
+  prijs:255,aantal:2,maand:2,wijze:'eenmalig',sessies:4,verplicht:true,proef:true},
+ {naam:'Losse clubtraining',groep:'los',oms:'Bijboeken buiten de pool',prijs:17.5,aantal:37,wijze:'los'},
+ {naam:'Losse Personal Training',groep:'los',oms:'Bijboeken buiten de pool',prijs:65,aantal:4,wijze:'los'},
+ {naam:'Intakegesprek op locatie',groep:'gratis',oms:'20 minuten: formulier doornemen, verwachtingen en een korte meting. Er wordt niet getraind.',prijs:0,
+  aantal:0,wijze:'gratis'}
+];
+const GROEPL={club:'Clubtraining',pt:'Personal Training',combi:'Combinatie',kaart:'Rittenkaart',
+  traject:'Traject',los:'Losse verkoop',gratis:'Gratis'};
+const WIJZEL={incasso:['Automatische incasso','b-club'],eenmalig:['Factuur met betaallink','b-amber'],
+  los:['Direct afrekenen','b-off'],gratis:['Gratis, geen checkout','b-both']};
+const abonnementen=()=>TARIEVEN.filter(t=>t.wijze==='incasso'&&!t.concept);
+const incassoBedrag=()=>abonnementen().reduce((a,t)=>a+t.prijs*t.aantal,0);
+const incassoAantal=()=>abonnementen().reduce((a,t)=>a+t.aantal,0);
+
+const OMZET=[
+ {m:'april',abo:8990,eenm:510,los:825},{m:'mei',abo:9240,eenm:255,los:820},
+ {m:'juni',abo:9410,eenm:1630,los:840},{m:'juli',abo:9180,eenm:255,los:760},
+ {m:'augustus',abo:9640,eenm:765,los:900},{m:'september',abo:9930,eenm:1885,los:907.5,loopt:true}
+];
+let FNR=159;
+let FACTUREN=[
+ {nr:'INC-09-014',kid:'eva',dat:'01-09-2026',verval:'01-09-2026',status:'geincasseerd',wijze:'incasso',
+  betaald:'01-09-2026',methode:'SEPA-incasso',regels:[['Clubtraining GROEI, september',1,109],['Personal Training BASIS, september',1,229]]},
+ {nr:'INC-09-021',kid:'youssef',dat:'01-09-2026',verval:'01-09-2026',status:'geincasseerd',wijze:'incasso',
+  betaald:'01-09-2026',methode:'SEPA-incasso',regels:[['Personal Training GROEI, september',1,429]]},
+ {nr:'INC-09-007',kid:'lisa',dat:'01-09-2026',verval:'01-09-2026',status:'geincasseerd',wijze:'incasso',
+  betaald:'01-09-2026',methode:'SEPA-incasso',regels:[['Clubtraining GROEI, september',1,109]]},
+ {nr:'INC-09-011',kid:'tim',dat:'01-09-2026',verval:'08-09-2026',status:'storno',wijze:'incasso',
+  regels:[['Clubtraining BASIS, september',1,79]]},
+ {nr:'INC-09-003',kid:'ruben',dat:'01-09-2026',verval:'01-09-2026',status:'geincasseerd',wijze:'incasso',
+  betaald:'01-09-2026',methode:'SEPA-incasso',regels:[['Clubtraining ONBEPERKT, september',1,129]]},
+ {nr:'INC-09-018',kid:'fatima',dat:'01-09-2026',verval:'01-09-2026',status:'geincasseerd',wijze:'incasso',
+  betaald:'01-09-2026',methode:'SEPA-incasso',regels:[['Clubtraining BASIS, september',1,79],['Personal Training BASIS, september',1,229]]},
+ {nr:'INC-09-026',kid:'iris',dat:'01-09-2026',verval:'08-09-2026',status:'storno',wijze:'incasso',
+  regels:[['Clubtraining GROEI, september',1,109],['Personal Training BASIS, september',1,229]]},
+ {nr:'2026-0152',kid:'naomi',dat:'20-08-2026',verval:'03-09-2026',status:'telaat',wijze:'eenmalig',
+  regels:[['Fundament Traject, 4 trainingen in 4 weken',1,255]]},
+ {nr:'2026-0157',kid:'bram',dat:'15-08-2026',verval:'29-08-2026',status:'betaald',wijze:'eenmalig',
+  betaald:'16-08-2026',methode:'iDEAL',regels:[['Fundament Traject, 4 trainingen in 4 weken',1,255]]},
+ {nr:'2026-0155',kid:'daan',dat:'02-09-2026',verval:'16-09-2026',status:'open',wijze:'eenmalig',
+  regels:[['Rittenkaart PT, 25 sessies',1,1375]]},
+ {nr:'2026-0158',kid:'daan',dat:'03-09-2026',verval:'17-09-2026',status:'open',wijze:'eenmalig',
+  regels:[['Losse Personal Training, 3 september',1,65]]},
+ {nr:'2026-0143',kid:'sander',dat:'01-06-2026',verval:'15-06-2026',status:'telaat',wijze:'eenmalig',
+  regels:[['Clubtraining BASIS, juni',1,79]]}
+];
+const fBedrag=f=>f.regels.reduce((s,r)=>s+r[1]*r[2],0);
+const fSom=st=>FACTUREN.filter(f=>Array.isArray(st)?st.includes(f.status):f.status===st).reduce((s,f)=>s+fBedrag(f),0);
+/* actieve klanten met een lidmaatschap dat deze maand nog niet gefactureerd is */
+const nietGefactureerd=()=>K.filter(k=>k.st==='Actief'&&k.p!=='fund'
+  &&!FACTUREN.some(f=>f.kid===k.id&&f.dat.slice(3)==='09-2026'));
+const storno=()=>FACTUREN.filter(f=>f.status==='storno');
+const FSTAT={concept:['Concept','b-off'],open:['Openstaand','b-amber'],telaat:['Te laat','b-red'],
+ betaald:['Betaald','b-club'],geincasseerd:['Geïncasseerd','b-club'],storno:['Storno','b-red']};
+const openStatus=['open','telaat','storno'];
+
+/* =============== leads =============== */
+const BRON={
+ website:['Website, formulier','b-both'],
+ intake:['Website, intake aangevraagd','b-fund'],
+ telefoon:['Telefonisch','b-amber'],
+ langs:['Langsgekomen','b-amber'],
+ doorverwijzing:['Doorverwijzing','b-club']};
+const LSTAT={
+ nieuw:['Nog niet benaderd','b-amber'],
+ gebeld:['Contact gehad','b-off'],
+ gepland:['Intake gepland','b-club'],
+ gehad:['Intake gehad, verwerken','b-amber'],
+ gewonnen:['Klant geworden','b-club'],
+ verloren:['Niet doorgegaan','b-off']};
+let LEADS=[
+ {id:'l1',naam:'Merel Doornbos',tel:'06 28 44 91 03',mail:'merel.doornbos@gmail.com',bron:'website',
+  dagen:0,uur:4,status:'nieuw',wens:'Twee keer per week kracht, weinig ervaring. Vraagt of ze eerst mag proefdraaien.',
+  form:{Doel:'Sterker worden, meer energie',Ervaring:'Nauwelijks',Blessures:'Geen',
+    'Voorkeur dagen':'Dinsdag en donderdag, ochtend','Akkoord privacyverklaring':'Ja, 4 september'},
+  notities:[],intake:null},
+ {id:'l2',naam:'Kevin Aalbers',tel:'06 51 30 77 24',mail:'k.aalbers@outlook.com',bron:'intake',
+  dagen:1,status:'gepland',wens:'Heeft zelf een intake aangevraagd via de site. Wil af van rugklachten door zittend werk.',
+  form:{Doel:'Rugklachten kwijtraken',Ervaring:'Vroeger gefitnest',Blessures:'Lage rug, zittend beroep',
+    'Voorkeur dagen':'Zaterdagochtend','Akkoord privacyverklaring':'Ja, 3 september'},
+  notities:[['Jeroen','gisteren','Bevestigd per telefoon, komt zaterdag langs.']],intake:{d:5,t:'12:00',tr:'Jeroen'}},
+ {id:'l3',naam:'Priya Nandram',tel:'06 19 82 55 40',mail:'priya.nandram@gmail.com',bron:'langs',
+  dagen:3,status:'gehad',wens:'Reed langs en zag de studio. Wil weten hoe klein de groepen zijn.',
+  notities:[['Sanne','3 dagen geleden','Gebeld, kwam donderdag langs voor de intake.']],intake:{d:3,t:'13:00',tr:'Sanne'}},
+ {id:'l4',naam:'Joost van Dijk',tel:'06 44 12 68 91',mail:'joostvandijk@ziggo.nl',bron:'website',
+  dagen:5,status:'nieuw',wens:'Knieblessure, zoekt begeleiding om weer op te bouwen.',
+  form:{Doel:'Opbouwen na knieblessure',Ervaring:'Hardlopen',Blessures:'Knie, geopereerd in maart',
+    'Voorkeur dagen':'Avond','Akkoord privacyverklaring':'Ja, 30 augustus'},notities:[],intake:null},
+ {id:'l5',naam:'Sofie Meijer',tel:'06 37 90 21 65',mail:'sofie.meijer@icloud.com',bron:'doorverwijzing',
+  dagen:2,status:'nieuw',wens:'Via Lisa Vermeulen. Zoekt iets vasts op vrijdagochtend.',notities:[],intake:null}
+];
+let LID=6;
+const leadOpen=()=>LEADS.filter(l=>['nieuw','gebeld','gepland','gehad'].includes(l.status));
+const leadTraag=()=>LEADS.filter(l=>['nieuw','gebeld'].includes(l.status)&&l.dagen>=2);
+const leadWanneer=l=>l.dagen===0?(l.uur?l.uur+' uur geleden':'vandaag'):l.dagen===1?'gisteren':l.dagen+' dagen geleden';
+const initialen=n=>n.split(' ').filter(w=>w.length>2||/^[A-Z]/.test(w)).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+
+const UPD=[
+ {id:'naomi',kind:'sig',lab:'Signaal',w:'12 min',p:'3 van de laatste 5 sessies afgemeld. Annulering staat op 38%.'},
+ {id:'fatima',kind:'msg',lab:'Bericht',w:'40 min',p:'“Kan ik donderdag ruilen naar vrijdagochtend?”'},
+ {id:'tim',kind:'att',lab:'Aandacht',w:'1 uur',p:'Laatste bezoek 11 dagen geleden. 2 credits vervallen zondag.'},
+ {id:'eva',kind:'note',lab:'Notitie',w:'3 uur',p:'Sanne: linkerschouder gevoelig bij overhead press.'},
+ {id:'iris',kind:'att',lab:'Aandacht',w:'gisteren',p:'1 PT-credit vervalt morgen en er staat niets ingepland.'},
+ {id:'bram',kind:'note',lab:'Fundament',w:'gisteren',p:'Week 3 van 4 afgerond. Doorstroom naar de groep bespreken.'},
+ {id:'daan',kind:'note',lab:'Notitie',w:'2 dagen',p:'Vroeg om een extra sessie. Geen credits meer, dus bijboeken.'}
+];
+const CHAT={
+ eva:[['them','Hoi! Ik voel mijn schouder nog een beetje. Kan ik vanavond wel mee?','do 3 sep 16:12'],
+      ['us','Kom maar, we passen het programma aan. Vanavond geen overhead.','do 3 sep 16:40'],
+      ['them','Top, tot vanavond.','do 3 sep 16:41']],
+ fatima:[['them','Kan ik donderdag ruilen naar vrijdagochtend?','vandaag 08:20']],
+ tim:[['us','Hé Tim, je hebt nog 2 sessies staan die zondag vervallen. Zin om zaterdag langs te komen?','vandaag 09:05']]
+};
+function sheetAfmelden(x,id){
+ const k=KI[id], vst=venster(x), dgn=geldig(x), optijd=opTijd(x);
+ const uur=Math.round((sessDate(x)-NU)/36e5);
+ let terug=optijd;
+ const draw=()=>{
+  $('#sheetbody').innerHTML=`<h3>${k.n} afmelden</h3>
+   <p class="sub">${x.n} — ${DAYS[x.d].k} ${DAYS[x.d].d} ${DAYS[x.d].m.toLowerCase()}, ${x.t}</p>
+   <div class="card ${optijd?'':'note'}">
+     <b style="font-weight:600">${optijd?'Binnen de afmeldtermijn':'Buiten de afmeldtermijn'}</b>
+     <p style="margin:6px 0 0;font-size:13.5px">${x.ty==='pt'?'Personal Training':'Clubtraining'}: afmelden kan tot ${vst} uur van tevoren.
+      ${uur>=0?'Deze sessie begint over ongeveer '+uur+' uur.':'Deze sessie is al geweest.'}
+      ${optijd?'De klant krijgt zijn credit terug, '+dgn+' dagen geldig.'
+              :'De klant kan zelf niet meer afmelden. Jij mag dat als '+(ME.rol==='eigenaar'?'eigenaar':'trainer van deze sessie')+' wel, en kiest of de credit terugkomt.'}</p>
+   </div>
+   <div class="field" style="padding-top:14px">
+     <button class="chk${terug?' on':''}" id="a-terug"><span class="box">✓</span>Credit teruggeven, ${dgn} dagen geldig</button>
+     <div class="fhelp">${terug?'De credit komt direct terug in de pool en de klant ziet dat meteen in zijn app.'
+       :'Zonder credit terug is de sessie verbruikt. Leg dat even uit in een bericht, anders snapt de klant het niet.'}</div>
+   </div>
+   <div class="savebar"><button class="btn" id="a-doe" style="background:${optijd?'var(--steen)':'var(--red)'}">Afmelden</button>
+     <button class="btn ghost" id="a-nee">Terug</button></div>
+   <div class="spacer"></div>`;
+  $('#a-terug').onclick=()=>{terug=!terug;draw()};
+  $('#a-nee').onclick=()=>openSession(x);
+  $('#a-doe').onclick=()=>{
+   x.att[id]='afgemeld';
+   const tot=new Date(NU.getTime()+dgn*864e5);
+   x.credit[id]={op:'zojuist, door '+ME.naam,tot:terug?kort(tot):null};
+   x.bk=Math.max(0,x.bk-1);
+   if(terug)k.cr[0]++;
+   if(x.cap>1&&x.bk<x.cap&&!isVoorbij(x))sheetPlekVrij(x,id); else openSession(x);
+  };
+ };
+ draw();openSheet();
+}
+
+/* ---- vrijgekomen plek aanbieden ---- */
+function sheetPlekVrij(x,afgemeld){
+ const vrij=x.cap-x.bk, kand=kandidaten(x), wil=kand.filter(k=>k.meld), stil=kand.length-wil.length;
+ const wanneer=x.d===NOW.day?'vanavond':`${DAYS[x.d].k} ${DAYS[x.d].d} ${DAYS[x.d].m.toLowerCase()}`;
+ let tekst=`Er is net een plek vrijgekomen bij ${x.n} ${wanneer} om ${x.t}. ${vrij===1?'Eén plek':vrij+' plekken'}, wie het eerst boekt traint mee. Het kost je een sessie uit je pool.`;
+ const draw=()=>{
+  $('#sheetbody').innerHTML=`<h3>${vrij===1?'Er is een plek vrij':'Er zijn '+vrij+' plekken vrij'}</h3>
+   <p class="sub">${KI[afgemeld].n} is afgemeld voor ${x.n}, ${wanneer} ${x.t}</p>
+   <div class="preview" style="margin-top:14px">Gaat naar <b>${wil.length} ${wil.length===1?'klant':'klanten'}</b> met een geldige credit die nog kan inhalen.
+    ${stil?`<br><span style="color:var(--muted)">${stil} ${stil===1?'klant krijgt':'klanten krijgen'} dit niet: ${kand.filter(k=>!k.meld).map(k=>k.n.split(' ')[0]).join(' en ')} ${stil===1?'heeft':'hebben'} meldingen over vrije plekken uitgezet.</span>`:''}</div>
+   <div class="field">
+     <div class="flabel" style="font-size:15px">Bericht</div>
+     <textarea class="fin" id="v-txt" rows="4">${tekst}</textarea>
+     <div class="fhelp">Noem de tijd en het aantal plekken. Dat werkt beter dan een algemene oproep, want dan weet iemand meteen of het past.</div>
+   </div>
+   <div class="savebar"><button class="btn" id="v-send"${wil.length?'':' disabled style="opacity:.5"'}>Versturen naar ${wil.length}</button>
+     <button class="btn ghost" id="v-nee">Niet nu</button></div>
+   <p class="tip">Je kunt dit later alsnog doen via Pushmelding in het sessiescherm.</p><div class="spacer"></div>`;
+  $('#v-nee').onclick=()=>openSession(x);
+  $('#v-send').onclick=()=>{
+   if(!wil.length)return;
+   const v=$('#v-txt').value.trim();
+   wil.forEach(k=>{(CHAT[k.id]=CHAT[k.id]||[]).push(['us',v,'nu'])});
+   toast('Verstuurd',`${wil.length} klanten met een geldige credit hebben de melding gekregen. Wie het eerst boekt, heeft de plek.${stil?' '+stil+' klant'+(stil>1?'en':'')+' zijn overgeslagen omdat ze deze meldingen uit hebben staan.':''}`);
+  };
+ };
+ draw();openSheet();
+}
+const ROSTER={
+ in:[['eva','Aangemeld'],['ruben','Aangemeld'],['lisa','Aangemeld']],
+ off:[['tim','afgemeld do 3 sep 14:20','credit geldig t/m do 10 sep'],
+      ['youssef','afgemeld vandaag 05:10','credit geldig t/m vr 11 sep']]
+};
+const DAGK=['Ma','Di','Wo','Do','Vr','Za','Zo'];
+const ACTS=['Personal Training','Fundament Traject','Intakegesprek'];
+let AVAIL=[
+ {id:1,start:'08-06-2026',allDay:false,from:'07:00',to:'14:00',freq:'Wekelijks',days:[0,2,4],end:null,alle:true,act:[]},
+ {id:2,start:'08-06-2026',allDay:false,from:'16:00',to:'20:00',freq:'Wekelijks',days:[1,3],end:null,alle:false,act:['Personal Training']},
+ {id:3,start:'05-09-2026',allDay:false,from:'08:00',to:'12:00',freq:'Eenmalig',days:[5],end:'05-09-2026',alle:true,act:[]}
+];
+let editRule=null;
+
+/* =============== helpers =============== */
+const $=s=>document.querySelector(s);
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
+const mins=t=>{const[a,b]=t.split(':').map(Number);return a*60+b};
+const hhmm=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+const TYN={club:'Clubtraining',pt:'Personal Training',fund:'Fundament Traject',intake:'Intake, 20 minuten'};
+let trainerFilter='Alle', aday=4, aview=window.innerWidth>=1024?'week':'dag', ktab='lijst', kfilt='alle', kq='', chatId='eva';
+
+const IC={
+ dash:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 12l3.5-3.5"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/></svg>',
+ cal:'<svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg>',
+ people:'<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.3"/><path d="M3 20c0-3.3 2.7-5.4 6-5.4s6 2.1 6 5.4"/><path d="M16.2 5.2a3 3 0 0 1 0 5.6M17 19.6c0-2.2-.7-3.8-1.9-4.9"/></svg>',
+ bell:'<svg viewBox="0 0 24 24"><path d="M18 16V11a6 6 0 1 0-12 0v5l-1.5 2.5h15L18 16Z"/><path d="M10 20.5a2.3 2.3 0 0 0 4 0"/></svg>',
+ sync:'<svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.3-4.9M4 13a8 8 0 0 0 14.3 4.9"/><path d="M20 4.5V11h-6M4 19.5V13h6"/></svg>',
+ menu:'<svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
+ more:'<svg viewBox="0 0 24 24"><path d="M4 8h16M4 12h16M4 16h16"/></svg>',
+ plus:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+ filt:'<svg viewBox="0 0 24 24"><path d="M4 7h16M6 12h12M9 17h6"/></svg>',
+ sliders:'<svg viewBox="0 0 24 24"><path d="M4 8h10M18 8h2M4 16h4M12 16h8"/><circle cx="16" cy="8" r="2"/><circle cx="10" cy="16" r="2"/></svg>',
+ gear:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3.5v2M12 18.5v2M20.5 12h-2M5.5 12h-2M18 6l-1.4 1.4M7.4 16.6 6 18M18 18l-1.4-1.4M7.4 7.4 6 6"/></svg>',
+ mark:'<svg viewBox="0 0 24 24"><path d="M7 4h10v16l-5-3.5L7 20V4Z"/></svg>',
+ srch:'<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>',
+ back:'<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
+ chev:'<svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg>',
+ occ:'<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c0-3 2.5-4.9 5.5-4.9s5.5 1.9 5.5 4.9"/><path d="M16 5.5a2.7 2.7 0 0 1 0 5M17 19c0-2-.6-3.4-1.7-4.4"/></svg>',
+ one:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 19.5c0-3.3 2.9-5.4 6.5-5.4s6.5 2.1 6.5 5.4"/></svg>',
+ clock:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5.2l3.2 2"/></svg>',
+ card:'<svg viewBox="0 0 24 24"><rect x="2.5" y="5.5" width="19" height="13" rx="2.5"/><path d="M2.5 10h19"/><path d="M6 14.5h3"/></svg>',
+ chat:'<svg viewBox="0 0 24 24"><path d="M20 12.5c0 3.9-3.6 7-8 7-1 0-2-.2-2.9-.5L4 20.5l1.4-3.6A6.6 6.6 0 0 1 4 12.5c0-3.9 3.6-7 8-7s8 3.1 8 7Z"/></svg>'
+};
+
+/* =============== header =============== */
+const HEADERS={
+ dashboard:()=>({html:`<button data-act="menu">${IC.menu}</button><div class="logo">IMPACT<em>CLUB</em></div>
+   <button class="hico-b" data-act="sync">${IC.sync}</button>
+   <button class="hico-b" data-act="upd">${IC.bell}</button>`,tabs:null}),
+ agenda:()=>({html:`<button data-act="menu">${IC.menu}</button>
+   <div class="mid"><button class="dsel" data-act="datum">${DAYS[aday].k.charAt(0).toUpperCase()+DAYS[aday].k.slice(1)} ${DAYS[aday].d} ${DAYS[aday].m.toLowerCase()}, 2026 <span style="font-size:12px">▾</span></button></div>
+   <button data-act="vandaag">${IC.cal}</button><button data-act="nieuw">${IC.plus}</button>`,tabs:null}),
+ klanten:()=>({html:`<button data-act="menu">${IC.menu}</button><div class="mid">Klanten</div>
+   <button data-act="nieuwklant">${IC.plus}</button>`,
+   tabs:[['leads','Leads'],['lijst','Klanten'],['producten','Producten'],['tabel','Tabel']]}),
+ updates:()=>({html:`<button data-act="menu">${IC.menu}</button><div class="mid">Updates</div>
+   <button data-act="instel">${IC.gear}</button>`,tabs:null}),
+ meer:()=>({html:`<div class="mid left">Meer</div>`,tabs:null}),
+ klant:()=>({html:`<button data-act="terug">${IC.back}</button><div class="mid">Klantprofiel</div>
+   <button data-act="chat2">${IC.chat}</button>`,tabs:null}),
+ chat:()=>({html:`<button data-act="terugklant">${IC.back}</button><div class="mid">${KI[chatId].n}</div>
+   <span style="width:26px"></span>`,tabs:null}),
+ beschik:()=>({html:`<button data-act="terugmeer">${IC.back}</button>
+   <div class="mid">Beschikbaarheid<small>${ME.full}</small></div>
+   <button data-act="nieuwregel">${IC.plus}</button>`,tabs:null}),
+ cijfers:()=>({html:`<button data-act="terugdash">${IC.back}</button>
+   <div class="mid">Afmeldingen<small>Cijfers en patronen</small></div>
+   <button data-act="instel">${IC.gear}</button>`,tabs:null}),
+ financien:()=>({html:`<button data-act="menu">${IC.menu}</button><div class="mid">Financiën</div>
+   <button data-act="nieuwfactuur">${IC.plus}</button>`,
+   tabs:[['overzicht','Overzicht'],['facturen','Facturen'],['omzet','Omzet']]}),
+ rooster:()=>({html:`<button data-act="terugmeer">${IC.back}</button>
+   <div class="mid">Rooster<small>Clubtrainingen en reeksen</small></div>
+   <button data-act="nieuwrooster">${IC.plus}</button>`,tabs:null}),
+ roosterform:()=>({html:`<button data-act="terugrooster">${IC.back}</button>
+   <div class="mid">${FORMTITEL()}</div><span style="width:26px"></span>`,tabs:null}),
+ beschikedit:()=>({html:`<button data-act="terugbeschik">${IC.back}</button>
+   <div class="mid">Beschikbaarheid bewerken<small>${ME.full}</small></div>
+   <button data-act="regelmenu"><span class="dots">•••</span></button>`,tabs:null})
+};
+function drawHeader(name){
+ const h=HEADERS[name]();
+ const r=$('#hrow');r.innerHTML=h.html;
+ r.querySelectorAll('button').forEach(b=>{if(b.querySelector('svg'))b.firstChild.classList?.add('hico')});
+ r.querySelectorAll('svg').forEach(s=>s.classList.add('hico'));
+ r.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>act(b.dataset.act));
+ const t=$('#htabs');
+ if(h.tabs){t.style.display='';t.innerHTML='';
+  const fin=name==='financien', huidig=fin?finTab:ktab;
+  h.tabs.forEach(([k,l])=>{const b=el('button','htab'+(huidig===k?' on':''),l);
+   b.onclick=()=>{if(fin){finTab=k;drawHeader('financien');renderFin()}
+                  else{ktab=k;drawHeader('klanten');renderKlanten()}};t.appendChild(b)})}
+ else t.style.display='none';
+}
+function act(a){
+ if(a==='menu')openDrawer();
+ else if(a==='upd')show('updates');
+ else if(a==='meer')openDrawer();
+ else if(a==='terug')show('klanten');
+ else if(a==='terugklant')openKlant(chatId);
+ else if(a==='terugmeer')show('dashboard');
+ else if(a==='terugbeschik')show('beschik');
+ else if(a==='nieuwregel')openRule(null);
+ else if(a==='regelmenu')sheetRegelmenu();
+ else if(a==='chat2')openChat(curKlant);
+ else if(a==='vandaag'){aday=4;renderAgenda();drawHeader('agenda')}
+ else if(a==='datum')sheetDatum();
+ else if(a==='filter')sheetFilter();
+ else if(a==='instel')sheetInstel();
+ else if(a==='sync')toast('Bijgewerkt','Alle boekingen, afmeldingen en credits zijn opnieuw opgehaald uit de engine.');
+ else if(a==='terugrooster')show('rooster');
+ else if(a==='terugdash')show('dashboard');
+ else if(a==='nieuwrooster')sheetNieuw();
+ else if(a==='nieuwfactuur')nieuweFactuur(null);
+ else if(a==='nieuw')sheetNieuw();
+ else if(a==='nieuwklant')toast('Klant toevoegen','Nieuwe klanten en producten blijven voorlopig in Trainin. Ze komen via de maandelijkse CSV-import binnen.');
+}
+function toast(t,p){$('#sheetbody').innerHTML=`<h3>${t}</h3><p class="sub">${p}</p><div class="spacer"></div>`;openSheet()}
+
+/* =============== dashboard =============== */
+function renderDash(){
+ const s=$('#s-dashboard');
+ const up=S.filter(x=>x.d>NOW.day||(x.d===NOW.day&&mins(x.t)>NOW.min)).sort((a,b)=>a.d-b.d||mins(a.t)-mins(b.t)).slice(0,6);
+ /* al geweest vandaag */
+ const gehad=S.filter(x=>x.d===NOW.day&&isVoorbij(x)).sort((a,b)=>mins(a.t)-mins(b.t));
+ const tel=x=>{const c={aanwezig:0,afwezig:0,open:0,afgemeld:0};
+   x.deelnemers.forEach(id=>c[x.att[id]]++);return c};
+ let aanw=0,nietg=0,open=0;
+ gehad.forEach(x=>{const c=tel(x);aanw+=c.aanwezig;nietg+=c.afwezig;open+=c.open});
+ const eerder=gehad.length?`<div class="sechead"><div class="ic">${IC.occ}</div>
+   <div><h2>Eerder vandaag</h2><div class="sub">${open?open+' deelnemer'+(open>1?'s':'')+' nog niet afgevinkt':'Alles afgevinkt'}</div></div></div>`+
+   gehad.map(x=>{const c=tel(x);
+    return `<button class="donecard" data-s="${x.id}">
+      <span style="width:52px;flex:none;color:var(--muted);font-size:14px">${x.t}</span>
+      <span style="flex:1"><b>${x.n}</b><small>${x.tr} — ${c.open
+        ?(c.open+c.aanwezig+c.afwezig)+' deelnemers, nog niet afgevinkt'
+        :c.aanwezig+' aanwezig'+(c.afwezig?', '+c.afwezig+' afwezig':'')}${c.afgemeld?', '+c.afgemeld+' afgemeld':''}</small></span>
+      <span class="pill ${c.open?'todo':'ok'}">${c.open?'Afvinken':'Compleet'}</span></button>`}).join(''):'';
+ let last=null;
+ const afmWk=liveAfm();
+ const afmPct=Math.round(afmWk.length/GEB.wk[36]*100);
+ const afmLijst=afmWk.slice(0,4).map(a=>{
+   const k=KI[a.id];
+   return `<button class="donecard" data-afm="${a.sid}">
+     <span class="av off">${k.ini}</span>
+     <span style="flex:1"><b>${k.n}</b><small>${a.act}, ${DAYS[a.d].k} ${a.t} — ${a.op}</small></span>
+     <span class="pill ${a.tot?'ok':'todo'}">${a.tot?'credit t/m '+a.tot:'geen credit'}</span></button>`}).join('');
+ const afmBlok=`<div class="sechead"><div class="ic">${IC.sync}</div>
+   <div><h2>Afmeldingen</h2><div class="sub">${afmWk.length} deze week, ${afmPct}% van de boekingen</div></div>
+   <button class="chev" data-cijfers style="margin-left:auto;font-size:26px">›</button></div>
+  ${afmLijst||'<p class="tip">Deze week nog geen afmeldingen.</p>'}
+  <button class="donecard" data-cijfers style="color:var(--steen);font-weight:700">
+    <span style="flex:1">Cijfers per week, maand en soort</span><span class="chev">›</span></button>`;
+ const cards=up.map(x=>{
+  const dm=x.d!==last?`<div class="daymark"><b>${x.k||DAYS[x.d].k.toUpperCase()} ${DAYS[x.d].d}</b><span>${DAYS[x.d].lang.toLowerCase()}${x.d===NOW.day?' — vandaag':''}</span></div>`:'';
+  last=x.d;
+  const full=x.bk>=x.cap;
+  const vers=x.deelnemers.filter(id=>x.att[id]==='afgemeld'&&(x.credit[id]||{}).op?.includes('door')).map(id=>{
+    const c=x.credit[id];return ['afmelding',KI[id].n,c.op+', '+(c.tot?'credit geldig t/m '+c.tot:'geen credit terug')]});
+  const notes=[...vers,...(x.notes||[])].map(n=>`<li><span class="tag t-${n[0]}">${lbl(n[0])}</span><span><u>${n[1]}</u>${n[2]?' — '+n[2]:''}</span></li>`).join('');
+  return dm+`<button class="dcard" data-s="${x.id}">
+   <div class="dtop">
+     <div class="dtime"><b>${x.t}</b><small>${hhmm(mins(x.t)+x.dur)}</small></div>
+     <div class="dmain"><div class="t">${x.n}</div><div class="tr">${x.tr}</div>
+       <div class="oc ${full?'full':''}">${x.cap>1?IC.occ:IC.one}${x.cap>1?x.bk+' / '+x.cap:'1 op 1'}${full?' · vol':''}</div></div>
+     <span class="chev">›</span>
+   </div>
+   ${x.focus?`<div class="focus"><b>Programma.</b> ${x.focus}</div>`:''}
+   ${notes?`<ul class="notes">${notes}</ul>`:''}</button>`;
+ }).join('');
+
+ s.innerHTML=`
+ <div class="stats">
+   <div class="stat"><div class="lbl">Actieve klanten <i>i</i></div><b>68</b><small>Vandaag</small></div>
+   <button class="stat" data-cijfers style="text-align:left;width:100%"><div class="lbl">Afmeldingen <i>i</i></div><b>${afmWk.length}<span style="color:var(--muted);font-weight:400"> · ${afmPct}%</span></b><small>Deze week — bekijk cijfers ›</small></button>
+   <div class="stat"><div class="lbl">Aanwezig <i>i</i></div><b>${aanw}${open?'<span style="color:var(--muted);font-weight:400"> / '+(aanw+nietg+open)+'</span>':''}</b><small>${open?open+' nog afvinken':'Vandaag, compleet'}</small></div>
+   <div class="stat"><div class="lbl">Bezetting <i>i</i></div><b>84%</b><small>Deze week</small></div>
+ </div>
+ ${leadTraag().length?`<button class="alertbar" data-leads style="border-color:#E3C9C4;background:#FBEEEC">
+   <div><b>${leadTraag().length} ${leadTraag().length===1?'lead wacht':'leads wachten'} op een reactie</b>
+     <small>${leadTraag().map(l=>l.naam.split(' ')[0]).join(', ')} — twee dagen of langer</small></div>
+   <span class="chev">›</span></button>`:''}
+ ${LEADS.some(l=>l.status==='gehad')?`<button class="alertbar" data-leads style="border-color:#E3C9C4;background:#FBEEEC">
+   <div><b>${LEADS.filter(l=>l.status==='gehad').length} intake wacht op verwerking</b>
+     <small>${LEADS.filter(l=>l.status==='gehad').map(l=>l.naam.split(' ')[0]).join(', ')} — bevindingen vastleggen en het Fundament Traject aanbieden</small></div>
+   <span class="chev">›</span></button>`:''}
+ ${LEADS.some(l=>l.status==='gepland')?`<button class="alertbar" data-leads>
+   <div><b>${LEADS.filter(l=>l.status==='gepland').length} intake${LEADS.filter(l=>l.status==='gepland').length>1?'s':''} gepland</b>
+     <small>${LEADS.filter(l=>l.status==='gepland').map(l=>l.naam.split(' ')[0]+' op '+DAYS[l.intake.d].k+' '+DAYS[l.intake.d].d).join(', ')}</small></div>
+   <span class="chev">›</span></button>`:''}
+ <button class="alertbar" data-go-upd>
+   <div><b>3 klanten hebben credits die binnen 48 uur vervallen</b><small>Iris, Tim en Fatima — nog niets ingepland</small></div>
+   <span class="chev">›</span></button>
+ ${teEvalueren().length?`<div class="sechead"><div class="ic">${IC.one}</div>
+   <div><h2>Klaar voor de evaluatie</h2>
+   <div class="sub">${teEvalueren().length} ${teEvalueren().length===1?'traject':'trajecten'} afgerond — Club of PT bepalen</div></div></div>`+
+  teEvalueren().map(k=>{const a=trajectAdvies(k),[al]=ADVL[a.keuze];
+   return `<button class="dcard" data-ev="${k.id}">
+    <div class="dtop">
+      <span class="av">${k.ini}</span>
+      <span class="dmain" style="margin-left:2px"><span class="t">${k.n}</span>
+        <span class="tr">Fundament afgerond op ${k.traject.afgerond}</span>
+        <span style="display:block;margin-top:5px"><span class="badge ${a.keuze==='club'?'b-club':a.keuze==='pt'?'b-pt':'b-amber'}">Advies: ${al}</span></span></span>
+      <span class="chev">›</span></div>
+    <ul class="notes" style="margin-left:58px">${a.red.slice(0,2).map(r=>
+      `<li><span class="tag t-${r[0]}">${lbl(r[0])}</span><span><u>${r[1]}</u></span></li>`).join('')}</ul>
+    </button>`}).join(''):''}
+ <div class="sechead"><div class="ic">${IC.cal}</div>
+   <div><h2>Waar je op moet letten</h2><div class="sub">Je eerstvolgende 6 sessies</div></div></div>
+ ${cards}
+ ${afmBlok}
+ ${eerder}
+ <p class="tip">Notities komen uit de klantprofielen en uit de creditpool-engine. Ze staan alleen hier, in de bedrijfsapp — de klant ziet er niets van.</p>
+ <div class="spacer"></div>`;
+ s.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>openSession(sess(b.dataset.s)));
+ s.querySelector('[data-go-upd]').onclick=()=>show('updates');
+ s.querySelectorAll('[data-leads]').forEach(b=>b.onclick=()=>{ktab='leads';lFilter='open';show('klanten')});
+ s.querySelectorAll('[data-ev]').forEach(b=>b.onclick=()=>openEvaluatie(b.dataset.ev));
+ s.querySelectorAll('[data-cijfers]').forEach(b=>b.onclick=e=>{e.stopPropagation();show('cijfers')});
+ s.querySelectorAll('[data-afm]').forEach(b=>b.onclick=()=>openSession(sess(b.dataset.afm)));
+}
+const lbl=k=>({blessure:'Blessure',credit:'Credit',nieuw:'Nieuw',vrij:'Let op',afmelding:'Afmelding'})[k]||k;
+
+/* =============== agenda =============== */
+function renderAgenda(){
+ const s=$('#s-agenda');
+ s.innerHTML=`<div class="abar"><div class="wk">W${aday>=7?37:36}</div><div class="dt">${DAYS[aday].lang}, ${DAYS[aday].d} ${DAYS[aday].m}</div></div>
+  <div class="viewbar"><button class="vs" id="vswitch">${aview==='dag'?'Dag ▾':'Week ▾'}</button>
+   <div class="chips" id="tchips"></div></div>
+  <div id="abody"></div><div class="spacer"></div>`;
+ $('#vswitch').onclick=()=>{aview=aview==='dag'?'week':'dag';renderAgenda()};
+ const c=$('#tchips');
+ TRAINERS.forEach(t=>{const b=el('button','chip'+(t===trainerFilter?' on':''),t);
+  b.onclick=()=>{trainerFilter=t;renderAgenda()};c.appendChild(b)});
+ aview==='dag'?drawDag():breed()?drawWeekBreed():drawWeek();
+}
+const vis=x=>trainerFilter==='Alle'||x.tr===trainerFilter;
+
+function drawDag(){
+ const list=S.filter(x=>x.d===aday&&vis(x)).sort((a,b)=>mins(a.t)-mins(b.t));
+ const b=$('#abody');
+ if(!list.length){b.innerHTML=`<div class="card" style="margin:20px 16px"><b>Niets gepland</b>
+   <div style="color:var(--muted);font-size:13.5px">Geen sessies op deze dag${trainerFilter!=='Alle'?' voor '+trainerFilter:''}.</div></div>`;return}
+ const from=Math.floor(Math.min(...list.map(x=>mins(x.t)))/60)*60-30;
+ const to=Math.ceil(Math.max(...list.map(x=>mins(x.t)+x.dur))/60)*60+30;
+ let g='',lg='';
+ for(let m=from;m<to;m+=30){lg+=`<div>${m%60===0?hhmm(m):hhmm(m)}</div>`;g+=`<div class="${m%60===0?'hour':''}"></div>`}
+ /* banen bepalen */
+ const lanes=[];
+ list.forEach(x=>{
+  const st=mins(x.t),en=st+x.dur;
+  let i=lanes.findIndex(l=>l<=st);
+  if(i<0){lanes.push(en);i=lanes.length-1}else lanes[i]=en;
+  x._lane=i;
+ });
+ const N=Math.max(1,lanes.length);
+ const evs=list.map(x=>{
+  const top=(mins(x.t)-from)/30*46, h=x.dur/30*46-4;
+  const w=100/N, left=x._lane*w;
+  const sub=x.cap>1?`${TYN[x.ty]} — ${x.tr} · ${x.bk}/${x.cap}`:`${TYN[x.ty]} — ${x.tr}`;
+  return `<button class="ev ${x.ty}${x.bk>=x.cap?' full':''}" data-s="${x.id}"
+    style="top:${top}px;height:${h}px;left:calc(${left}% + 3px);width:calc(${w}% - 6px)">
+    <span class="h">${x.t}-${hhmm(mins(x.t)+x.dur)} ↻</span>
+    <span class="n">${x.n}</span><span class="s">${sub}</span></button>`}).join('');
+ const nl=aday===NOW.day&&NOW.min>from&&NOW.min<to
+   ? `<div class="nowline" style="top:${(NOW.min-from)/30*46}px"></div>`:'';
+ b.innerHTML=`<div class="tl"><div class="tlg">${lg}</div><div class="tlb"><div class="grid">${g}</div>${evs}${nl}</div></div>`;
+ b.querySelectorAll('[data-s]').forEach(x=>x.onclick=()=>openSession(sess(x.dataset.s)));
+ const y=Math.max(0,(Math.min(...list.map(x=>mins(x.t)))-from)/30*46-20);
+ $('#main').scrollTop=0;
+}
+const breed=()=>window.innerWidth>=1024;
+function drawWeekBreed(){
+ const b=$('#abody'), H=42, dagen=DAYS.slice(0,7);
+ const alle=S.filter(x=>x.d<7&&vis(x));
+ if(!alle.length){b.innerHTML=`<div class="card" style="margin:20px 16px"><b>Niets gepland</b>
+   <div style="color:var(--muted);font-size:13.5px">Geen sessies deze week${trainerFilter!=='Alle'?' voor '+trainerFilter:''}.</div></div>`;return}
+ const from=Math.floor(Math.min(...alle.map(x=>mins(x.t)))/60)*60-30;
+ const to=Math.ceil(Math.max(...alle.map(x=>mins(x.t)+x.dur))/60)*60+30;
+ let gut='',lines='';
+ for(let m=from;m<to;m+=30){gut+=`<div>${hhmm(m)}</div>`;lines+=`<div class="${m%60===0?'hour':''}"></div>`}
+ const kolommen=dagen.map((d,di)=>{
+  const lijst=alle.filter(x=>x.d===di).sort((a,b)=>mins(a.t)-mins(b.t));
+  const banen=[];
+  lijst.forEach(x=>{let i=banen.findIndex(e=>e<=mins(x.t));
+   if(i<0){banen.push(mins(x.t)+x.dur);i=banen.length-1}else banen[i]=mins(x.t)+x.dur;x._b=i});
+  const N=Math.max(1,banen.length);
+  const evs=lijst.map(x=>{
+   const top=(mins(x.t)-from)/30*H, hg=x.dur/30*H-4, w=100/N;
+   const bezet=x.cap>1?` · ${x.bk}/${x.cap}`:'';
+   return `<button class="ev ${x.ty}${x.bk>=x.cap?' full':''}" data-s="${x.id}"
+     style="top:${top}px;height:${hg}px;left:calc(${x._b*w}% + 3px);width:calc(${w}% - 6px)">
+     <span class="h">${x.t}–${hhmm(mins(x.t)+x.dur)}</span>
+     <span class="n">${x.n}</span>
+     <span class="s">${x.tr}${bezet}</span></button>`}).join('');
+  const nu=di===NOW.day&&NOW.min>from&&NOW.min<to
+    ?`<div class="nowline" style="top:${(NOW.min-from)/30*H}px"></div>`:'';
+  return `<div class="wkcolwrap wk7col${d.today?' today':''}">
+    <div class="lines">${lines}</div>${evs}${nu}
+    ${lijst.length?'':'<div class="leeg">vrij</div>'}</div>`;
+ }).join('');
+ b.innerHTML=`<div class="wk7">
+   <div class="wk7head"><div class="wk7gut"></div>
+     ${dagen.map(d=>`<div class="wk7d${d.today?' today':''}">${d.lang.slice(0,2).toLowerCase()}<b>${d.d}</b>
+       <small>${d.ms}</small></div>`).join('')}</div>
+   <div class="wk7body"><div class="wk7gut hours">${gut}</div><div class="wk7cols">${kolommen}</div></div>
+ </div>
+ <div class="legend">
+   <span><i style="background:var(--green);border:1px solid var(--green-bd)"></i>Clubtraining</span>
+   <span><i style="background:var(--sand);border:1px solid var(--sand-bd)"></i>Personal Training</span>
+   <span><i style="background:var(--sky);border:1px solid var(--sky-bd)"></i>Fundament</span>
+   <span><i style="background:var(--mist);border:1px solid var(--line)"></i>Intake</span>
+   <span><i style="background:var(--red)"></i>Vol</span>
+ </div>
+ <p class="tip">Klik op een blok voor de deelnemers, het programma en een pushmelding. Klik op een dagkop voor de dagweergave.</p>`;
+ b.querySelectorAll('[data-s]').forEach(x=>x.onclick=()=>openSession(sess(x.dataset.s)));
+ b.querySelectorAll('.wk7d').forEach((d,i)=>d.onclick=()=>{aday=i;aview='dag';renderAgenda();drawHeader('agenda')});
+}
+
+function drawWeek(){
+ const b=$('#abody');
+ const days=DAYS.slice(0,7);
+ let head='<div class="wkhead"><div class="g"></div>',cols='';
+ days.forEach(d=>head+=`<div class="d${d.today?' today':''}">${d.k}<b>${d.d}</b></div>`);
+ head+='</div>';
+ const from=6*60,to=21*60;
+ let lg='';for(let m=from;m<to;m+=30)lg+=`<div>${m%60===0?hhmm(m):''}</div>`;
+ days.forEach((d,di)=>{
+  let lines='';for(let m=from;m<to;m+=30)lines+='<div></div>';
+  const evs=S.filter(x=>x.d===di&&vis(x)).map(x=>{
+   const top=(mins(x.t)-from)/30*32,h=x.dur/30*32-3;
+   return `<button class="wev ${x.ty}${x.bk>=x.cap?' full':''}" data-s="${x.id}" style="top:${top}px;height:${h}px">
+     <b>${x.ty==='pt'?'PT':x.ty==='fund'?'Fund.':x.ty==='intake'?'Intake':x.n.replace('CORE | ','C|')}</b>
+     <small>${x.cap>1?x.bk+'/'+x.cap:x.tr}</small></button>`}).join('');
+  cols+=`<div class="wkcol"><div class="lines">${lines}</div>${evs}</div>`;
+ });
+ b.innerHTML=`<div class="wkwrap">${head}<div class="wkbody"><div class="wkg">${lg}</div>${cols}</div></div>
+  <p class="tip">Tik op een dag bovenaan voor de dagweergave met volledige namen en tijden.</p>`;
+ b.querySelectorAll('[data-s]').forEach(x=>x.onclick=()=>openSession(sess(x.dataset.s)));
+ b.querySelectorAll('.wkhead .d').forEach((d,i)=>d.onclick=()=>{aday=i;aview='dag';renderAgenda();drawHeader('agenda')});
+}
+function sheetDatum(){
+ const b=$('#sheetbody');
+ b.innerHTML=`<h3>Kies een dag</h3><p class="sub">Week 36 en 37, september 2026</p>
+  <div class="slots">${DAYS.map((d,i)=>`<button class="slot ${i===aday?'free':''}" data-d="${i}">${d.k} ${d.d}<small>${d.today?'vandaag':d.ms}</small></button>`).join('')}</div>
+  <div class="spacer"></div>`;
+ b.querySelectorAll('[data-d]').forEach(x=>x.onclick=()=>{aday=+x.dataset.d;closeSheet();renderAgenda();drawHeader('agenda')});
+ openSheet();
+}
+function sheetFilter(){
+ toast('Filteren','In deze mockup filter je op trainer met de knoppen onder de datum. Filteren op locatie komt later, zodra er een tweede ruimte bijkomt.');
+}
+
+/* =============== sessiedetail =============== */
+function openSession(x){
+ const full=x.bk>=x.cap, mag=canEdit(x);
+ const aan=x.deelnemers.filter(id=>x.att[id]!=='afgemeld');
+ const af=x.deelnemers.filter(id=>x.att[id]==='afgemeld');
+ const teDoen=aan.filter(id=>x.att[id]==='open').length;
+ const rows=aan.length?aan.map(id=>{
+   const k=KI[id], st=x.att[id];
+   return `<div class="prow">
+    <div class="rowline">
+      <button class="av" data-go="${id}">${k.ini}</button>
+      <button class="kmain" data-go="${id}"><b>${k.n}</b><span>${k.prod}</span></button>
+      ${mag?`<button class="linkb" data-af="${id}">Afmelden</button>`:''}
+    </div>
+    <div class="pstat">
+      ${['aanwezig','afwezig'].map(s=>`<button class="${st===s?'on '+(s==='afwezig'?'no':''):''}"
+        data-st="${id}|${s}"${mag?'':' disabled'}>${STL[s]}</button>`).join('')}
+    </div></div>`}).join('')
+  :`<div class="prow" style="color:var(--muted);font-size:13.5px">Nog niemand in deze les bijgeschreven.</div>`;
+ const alles=(mag&&teDoen&&aan.length>1)
+  ?`<div class="btnrow" style="margin-top:10px"><button class="btn ghost" data-alle>Iedereen aanwezig (${teDoen})</button></div>`:'';
+ const offs=af.length?`<div class="sechead" style="padding-bottom:4px"><div><h2 style="font-size:16px">Afgemeld</h2>
+   <div class="sub">Deze plekken zijn weer vrij</div></div></div>`+
+   af.map(id=>{const k=KI[id],c=x.credit[id]||{};
+   return `<button class="krow" data-go="${id}"><span class="av off">${k.ini}</span>
+    <span class="kmain"><b>${k.n}</b><span>${c.op||'afgemeld'} — ${c.tot?'credit geldig t/m '+c.tot:'geen credit terug'}</span></span>
+    <span class="chev">›</span></button>`}).join(''):'';
+ const permregel=mag?'':`<p class="tip" style="margin-top:6px">Alleen ${x.tr} en de eigenaar kunnen hier aanwezigheid bijwerken of iemand afmelden. Je bent ingelogd als ${ME.full}.</p>`;
+ $('#sheetbody').innerHTML=`
+  <h3>${x.n}</h3>
+  <p class="sub">${DAYS[x.d].lang} ${DAYS[x.d].d} ${DAYS[x.d].m.toLowerCase()} · ${x.t}–${hhmm(mins(x.t)+x.dur)} · ${x.tr}</p>
+  <div class="card" style="display:flex;align-items:center;gap:14px">
+    <div><b style="font-size:24px;font-weight:600">${x.cap>1?x.bk+' / '+x.cap:'1 op 1'}</b>
+      <div style="color:${full?'var(--red)':'var(--acc)'};font-size:13px">${x.cap>1?(full?'Vol':(x.cap-x.bk)+' plek'+(x.cap-x.bk>1?'ken':'')+' vrij'):'Personal Training'}</div></div>
+    <span class="badge ${x.ty==='club'?'b-club':x.ty==='pt'?'b-pt':x.ty==='intake'?'b-both':'b-fund'}" style="margin-left:auto">${TYN[x.ty]}</span>
+  </div>
+  ${x.focus?`<div class="focus" style="margin:10px 16px">${x.focus}</div>`:''}
+  ${(x.notes||[]).length?`<ul class="notes" style="margin:10px 16px">${x.notes.map(n=>`<li><span class="tag t-${n[0]}">${lbl(n[0])}</span><span><u>${n[1]}</u>${n[2]?' — '+n[2]:''}</span></li>`).join('')}</ul>`:''}
+  <div class="sechead" style="padding-bottom:4px"><div><h2 style="font-size:16px">Deelnemers</h2></div></div>
+  ${rows}${alles}${permregel}${offs}
+  <div class="sechead" style="padding-bottom:0"><div><h2 style="font-size:16px">Wat gaan we doen</h2>
+    <div class="sub">Alleen zichtbaar voor jou en je collega's</div></div></div>
+  <div class="field" style="padding-top:8px">
+    <textarea class="fin" id="prog" rows="3" placeholder="${x.cap>1?'Bijvoorbeeld: blok 3, week 2 — back squat 5×3, afsluiten met sled push':'Bijvoorbeeld: techniek squat opnieuw doornemen, rustig opbouwen'}">${x.focus||''}</textarea>
+    <div class="rulechips">${(x.cap>1
+      ? ['Blok 3, week 2 — back squat 5×3','Intervallen 4×4 minuten roeien','Techniek en bewegingskwaliteit','Testweek: 1RM inschatten']
+      : ['Terugkomsessie, rustig opbouwen','Techniek squat doornemen','Programma doorspreken','Testsessie'])
+      .map(t=>`<button class="rulechip" data-tpl="${t}">${t}</button>`).join('')}</div>
+    <div class="fhelp" id="proghelp">Dit staat straks op je dashboard bij deze sessie, samen met de aandachtspunten per klant.</div>
+  </div>
+  <div class="btnrow"><button class="btn" data-save>Programma opslaan</button></div>
+  <div class="btnrow"><button class="btn ghost" data-push>Pushmelding sturen</button>
+    <button class="btn ghost" data-pres>Aanwezigheid</button></div>
+  <div class="spacer"></div>`;
+ const sb=$('#sheetbody');
+ sb.querySelectorAll('[data-go]').forEach(y=>y.onclick=()=>{closeSheet();openKlant(y.dataset.go)});
+ sb.querySelectorAll('[data-st]').forEach(y=>y.onclick=()=>{
+  const [id,st]=y.dataset.st.split('|');
+  x.att[id]=x.att[id]===st?'open':st;      /* nogmaals tikken maakt de keuze weer ongedaan */
+  openSession(x);
+ });
+ if(sb.querySelector('[data-alle]'))sb.querySelector('[data-alle]').onclick=()=>{
+  aan.forEach(id=>{if(x.att[id]==='open')x.att[id]='aanwezig'});
+  openSession(x);
+ };
+ sb.querySelectorAll('[data-af]').forEach(y=>y.onclick=()=>sheetAfmelden(x,y.dataset.af));
+ sb.querySelectorAll('[data-tpl]').forEach(y=>y.onclick=()=>{
+  const t=$('#prog');t.value=t.value.trim()?t.value.trim()+' '+y.dataset.tpl:y.dataset.tpl;t.focus();
+ });
+ sb.querySelector('[data-save]').onclick=()=>{
+  S[x.id].focus=$('#prog').value.trim();
+  $('#proghelp').textContent='Opgeslagen. Je collega\u2019s zien dit bij deze sessie en het staat op je dashboard.';
+  $('#proghelp').style.color='var(--acc)';
+  if($('#s-dashboard').classList.contains('on'))renderDash();
+ };
+ sb.querySelector('[data-push]').onclick=()=>openPush(x);
+ sb.querySelector('[data-pres]').onclick=()=>toast('Aanwezigheid','In deze mockup nog niet uitgewerkt. Aanwezigheid telt straks mee in de cijfers op het klantprofiel.');
+ openSheet();
+}
+
+/* =============== pushmelding vanuit de agenda =============== */
+function openPush(x){
+ const groep=x.cap>1;
+ const aangemeld=x.bk, plusAf=groep?x.deelnemers.length:x.bk;
+ const kand=groep?kandidaten(x):[], wil=kand.filter(k=>k.meld), stil=kand.length-wil.length;
+ const vrij=x.cap-x.bk;
+ let doel='aangemeld', ookDraad=true, tekst='';
+ const tpl=groep
+  ? ['De training gaat door','We starten buiten, kleed je warm aan','Vergeet je handdoek niet','Er is een plek vrijgekomen, wie het eerst boekt traint mee']
+  : ['Kun je vijf minuten eerder komen?','Neem je binnenschoenen mee','Ik verplaats onze sessie een half uur — laat weten of dat lukt'];
+ const draw=()=>{
+  const n=doel==='aangemeld'?aangemeld:doel==='allen'?plusAf:wil.length;
+  $('#sheetbody').innerHTML=`
+   <h3>Pushmelding</h3>
+   <p class="sub">${x.n} — ${DAYS[x.d].k} ${DAYS[x.d].d} ${DAYS[x.d].m.toLowerCase()}, ${x.t}</p>
+   ${groep?`<div class="field" style="padding-top:14px"><div class="flabel" style="font-size:15px">Naar wie</div>
+     <div class="seg">
+       <button class="segb${doel==='aangemeld'?' on':''}" data-doel="aangemeld">Deelnemers (${aangemeld})</button>
+       <button class="segb${doel==='allen'?' on':''}" data-doel="allen">Ook afgemeld (${plusAf})</button>
+       ${vrij>0?`<button class="segb${doel==='vrij'?' on':''}" data-doel="vrij">Plek vrij (${wil.length})</button>`:''}
+     </div>
+     ${doel==='vrij'?`<div class="fhelp">Klanten met een geldige credit die nog kunnen inhalen.${stil?' '+stil+' '+(stil===1?'klant heeft':'klanten hebben')+' deze meldingen uitgezet en krijgt dit niet.':''}</div>`:''}
+     </div>`:`<div class="field" style="padding-top:14px"><div class="flabel" style="font-size:15px">Naar wie</div>
+     <div class="chk on" style="cursor:default"><span class="box">✓</span>${x.who?KI[x.who].n:'Je klant'}</div></div>`}
+   <div class="field">
+     <div class="flabel" style="font-size:15px">Bericht</div>
+     <textarea class="fin" id="ptxt" rows="3" placeholder="Wat moeten ze weten voor deze training?">${tekst}</textarea>
+     <div class="rulechips">${tpl.map(t=>`<button class="rulechip" data-t="${t}">${t}</button>`).join('')}</div>
+   </div>
+   <div class="field" style="padding-top:14px">
+     <button class="chk${ookDraad?' on':''}" id="p-draad"><span class="box">✓</span>Ook in de berichtendraad zetten</button>
+     <div class="fhelp">Zonder dit is het alleen een melding op hun telefoon. In de draad kunnen ze het later teruglezen en erop antwoorden.</div>
+   </div>
+   <div class="preview">Gaat als push naar <b>${n} ${n===1?'klant':'klanten'}</b>.${doel==='vrij'&&stil?` ${stil} ${stil===1?'klant valt':'klanten vallen'} af omdat ze meldingen over vrije plekken uit hebben staan.`:''} Er gaat geen e-mail uit — push en de app vervangen dat.</div>
+   <div class="savebar"><button class="btn" id="p-send">Versturen</button>
+     <button class="btn ghost" id="p-back">Terug naar sessie</button></div>
+   <div class="spacer"></div>`;
+  const t=$('#ptxt');
+  t.oninput=()=>{tekst=t.value};
+  $('#sheetbody').querySelectorAll('[data-doel]').forEach(b=>b.onclick=()=>{tekst=t.value;doel=b.dataset.doel;draw()});
+  $('#sheetbody').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{
+   tekst=(t.value.trim()?t.value.trim()+' ':'')+b.dataset.t;draw();
+   const f=$('#ptxt');f.focus();f.setSelectionRange(f.value.length,f.value.length);
+  });
+  $('#p-draad').onclick=()=>{tekst=t.value;ookDraad=!ookDraad;draw()};
+  $('#p-back').onclick=()=>openSession(x);
+  $('#p-send').onclick=()=>{
+   const v=t.value.trim();
+   if(!v){$('#ptxt').focus();
+    $('#sheetbody').querySelector('.preview').innerHTML='<b style="color:var(--red)">Schrijf eerst een bericht.</b> Een lege melding zegt de klant niets — vertel wat er verandert of wat ze mee moeten nemen.';return}
+   if(ookDraad){
+    const ids=!groep?(x.who?[x.who]:[])
+      :doel==='vrij'?wil.map(k=>k.id)
+      :doel==='allen'?x.deelnemers
+      :x.deelnemers.filter(id=>x.att[id]!=='afgemeld');
+    ids.forEach(id=>{(CHAT[id]=CHAT[id]||[]).push(['us',v,'nu'])});
+   }
+   toast('Verstuurd',`${n} ${n===1?'klant heeft':'klanten hebben'} de melding op hun telefoon gekregen${ookDraad?' en kunnen erop antwoorden in de berichtendraad':''}.${doel==='vrij'?' Wie het eerst boekt, heeft de plek.':''}`);
+  };
+ };
+ draw();openSheet();
+}
+
+/* =============== klanten =============== */
+function renderKlanten(){
+ const s=$('#s-klanten');
+ if(ktab==='leads')return renderLeads(s);
+ if(ktab==='producten'){
+  const groepen=['club','pt','combi','kaart','traject','los','gratis'];
+  s.innerHTML=groepen.map(g=>{
+   const rij=TARIEVEN.filter(t=>t.groep===g);
+   if(!rij.length)return '';
+   return `<div class="sechead"><div><h2 style="font-size:16px">${GROEPL[g]}</h2>
+     <div class="sub">${WIJZEL[rij[0].wijze][0]}</div></div></div>`+
+    rij.map(t=>`<div class="krow"><span class="av${t.concept?' off':''}">${t.prijs?eur(t.prijs).replace('€ ','').split(',')[0]:'0'}</span>
+      <span class="kmain"><b>${t.naam}${t.proef?' <span class="badge b-fund">Proeftraject</span>':''}</b><span>${t.oms}</span></span>
+      <span style="text-align:right;flex:none">${t.concept?'<span class="badge b-amber">In voorbereiding</span>'
+        :`<b style="font-weight:600;font-size:13.5px">${t.aantal}</b><br><span style="color:var(--muted);font-size:12px">${t.groep==='los'?'deze maand':'klanten'}</span>`}</span>
+    </div>`).join('');
+  }).join('')+
+   `<p class="tip">Clubtraining en Personal Training lopen via automatische incasso. De rittenkaart en het Fundament Traject worden één keer gefactureerd. Het intakegesprek is geen product: het is een gratis activiteit die iemand één keer boekt, zonder factuur en zonder checkout.</p><div class="spacer"></div>`;
+  return;
+ }
+ const head=`<div class="searchrow">
+   <label class="sbox">${IC.srch}<input id="q" placeholder="Zoek op klant, e-mail of telefoon" value="${kq}"></label>
+   <button class="sbtn" data-act2="gear">${IC.gear}</button>
+   <button class="sbtn" data-act2="filt">${IC.sliders}</button>
+   <button class="sbtn" data-act2="mark">${IC.mark}</button></div>
+   ${leadOpen().length?`<button class="alertbar" data-naarleads>
+     <div><b>${leadOpen().length} openstaande leads</b><small>Nog geen klant, apart bijgehouden onder Leads</small></div>
+     <span class="chev">›</span></button>`:''}`;
+ const rows=K.filter(k=>{
+   const okF=kfilt==='alle'?true:kfilt==='inactief'?k.st==='Inactief':k.p===kfilt;
+   const q=kq.toLowerCase();
+   return okF&&(!q||[k.n,k.mail,k.tel].join(' ').toLowerCase().includes(q));
+ });
+ let body;
+ if(!rows.length) body=`<div class="card"><b>Geen klanten gevonden</b><div style="color:var(--muted);font-size:13.5px">Pas de zoekterm of het filter aan.</div></div>`;
+ else if(ktab==='tabel'){
+  body=`<div class="tablewrap"><table><thead><tr><th class="stick">Klant</th><th>Product</th><th>Credits</th>
+   <th>Laatste bezoek</th><th>Status</th><th>Bezoekfreq.</th><th>Annulering</th><th>Klant sinds</th></tr></thead><tbody>`+
+   rows.map(k=>`<tr data-go="${k.id}"><td class="stick"><b style="font-size:13.5px">${k.n}</b><br>
+     <span class="badge ${PLAB[k.p][1]}" style="margin-top:3px">${PLAB[k.p][0]}</span></td>
+     <td>${k.prod}</td><td>${dots(k)}</td><td>${k.lb}</td>
+     <td><span class="badge ${k.st==='Actief'?'b-off':'b-red'}">${k.st}</span></td>
+     <td>${k.freq}</td><td>${k.ann}</td><td>${k.sinds}</td></tr>`).join('')+
+   `</tbody></table></div><p class="tip">Scroll naar rechts voor bezoekfrequentie, annulering en klant sinds.</p>`;
+ }else{
+  body=rows.map(k=>`<button class="krow" data-go="${k.id}">
+    <span class="av ${k.st==='Inactief'?'off':''}">${k.ini}</span>
+    <span class="kmain"><b>${k.n}</b><span>${k.prod}</span></span>
+    <span class="crs">${dots(k)}</span><span class="chev">›</span></button>`).join('');
+ }
+ s.innerHTML=head+body+
+  `<div class="pager">1–${rows.length} van <b>${rows.length}</b> resultaten</div>
+   <p class="tip">Gevulde blokjes zijn geldige credits, geel betekent: vervalt binnen 48 uur.</p><div class="spacer"></div>`;
+ const q=$('#q');
+ q.oninput=()=>{kq=q.value;const p=q.selectionStart;renderKlanten();const n=$('#q');n.focus();n.setSelectionRange(p,p)};
+ s.querySelectorAll('[data-go]').forEach(x=>x.onclick=()=>openKlant(x.dataset.go));
+ if(s.querySelector('[data-naarleads]'))s.querySelector('[data-naarleads]').onclick=()=>{ktab='leads';drawHeader('klanten');renderKlanten()};
+ s.querySelectorAll('[data-act2]').forEach(x=>x.onclick=()=>{
+  if(x.dataset.act2==='filt')sheetKfilter();
+  else if(x.dataset.act2==='gear')sheetInstel();
+  else toast('Opgeslagen filters','Bewaar hier je eigen weergaven, bijvoorbeeld “PT-klanten met vervallende credits”.');
+ });
+}
+const dots=k=>{
+ const a=[...Array(k.cr[0]).fill('<i class="cr on"></i>'),...Array(k.cr[1]).fill('<i class="cr soon"></i>')];
+ while(a.length<3)a.push('<i class="cr"></i>');
+ return a.slice(0,4).join('');
+};
+function sheetKfilter(){
+ const opts=[['alle','Alle klanten'],['pt_club','PT + Club'],['pt','Alleen PT'],['club','Alleen Club'],['fund','Fundament'],['inactief','Inactief']];
+ $('#sheetbody').innerHTML=`<h3>Filteren</h3><p class="sub">Op lidmaatschap of status</p>
+  <div class="slots">${opts.map(([k,l])=>`<button class="slot ${kfilt===k?'free':''}" data-f="${k}">${l}</button>`).join('')}</div><div class="spacer"></div>`;
+ $('#sheetbody').querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{kfilt=b.dataset.f;closeSheet();renderKlanten()});
+ openSheet();
+}
+
+/* =============== klantprofiel =============== */
+let curKlant='eva';
+function openKlant(id){
+ curKlant=id;const k=KI[id],tot=k.cr[0]+k.cr[1];
+ $('#s-klant').innerHTML=`
+  <div class="phead"><span class="av ${k.st==='Inactief'?'off':''}">${k.ini}</span>
+    <span><b>${k.n}</b><span style="color:var(--muted);font-size:13.5px">Klant sinds ${k.sinds} · ${k.st}</span><br>
+    <span class="badge ${PLAB[k.p][1]}" style="margin-top:4px">${PLAB[k.p][0]}</span></span></div>
+  <div class="counter"><b>${k.kaart?k.kaart.over+' van de '+k.kaart.totaal+' ritten over'
+      :tot===0?'Geen sessies open':'Nog '+tot+' sessie'+(tot>1?'s':'')+' in te plannen'}</b>
+    <small>${k.prod}${k.kaart?', geldig tot '+k.kaart.tot:''}</small>${k.warn?`<div class="w">${k.warn}</div>`:''}
+    ${k.p==='fund'?`<div class="w" style="background:#2F4536;color:#BFE3C9">Proeftraject: na de vierde training bepalen jullie of het Clubtraining of Personal Training wordt${k.traject&&k.traject.advies&&k.traject.advies!=='open'?'. Jouw indruk na de intake: '+(k.traject.advies==='club'?'Clubtraining':'Personal Training'):''}.</div>`:''}</div>
+  ${k.traject&&k.traject.klaar?`<div class="btnrow"><button class="btn" data-ev>Evaluatie doen</button></div>`:''}
+  <div class="btnrow"><button class="btn" data-chat>Bericht sturen</button>
+    <button class="btn ghost" data-note>Notitie toevoegen</button></div>
+  <div class="sechead"><div><h2 style="font-size:16px">Laatste interne notitie</h2></div></div>
+  <div class="card note"><div class="rowline"><span style="color:var(--muted);font-size:12.5px">${k.note.a} · ${k.note.t}</span>
+    <span class="when"><span class="badge b-off">Alleen intern</span></span></div>
+    <p style="margin:8px 0 0;font-size:14px">${k.note.x}</p></div>
+  <div class="mini">
+    <div class="s"><b>${k.freq}</b><small>Bezoekfrequentie</small></div>
+    <div class="s"><b>${k.bez}</b><small>Aanwezigheid</small></div>
+    <div class="s"><b>${k.ann}</b><small>Annulering</small></div>
+    <div class="s"><b>${k.tot}</b><small>Boekingen totaal</small></div>
+  </div>
+  <div class="card"><div class="kv"><span>Aankomend</span><b>${k.next}</b></div>
+    <div class="kv"><span>Laatste bezoek</span><b>${k.last}</b></div>
+    <div class="kv"><span>Favoriet</span><b>${k.fav}</b></div></div>
+  <div class="sechead" style="padding-bottom:0"><div><h2 style="font-size:16px">Meldingen</h2>
+    <div class="sub">De klant stelt dit zelf in, jij kunt het hier zien en aanpassen</div></div></div>
+  <div class="card">
+    <div class="rowline"><span style="flex:1"><b style="font-weight:600;font-size:14.5px">Vrije plekken en inhaalmomenten</b>
+      <div style="color:var(--muted);font-size:12.5px;margin-top:2px">${k.meld
+        ?'Krijgt een melding als er een plek vrijkomt in een les waar hij nog credits voor heeft.'
+        :'Krijgt geen melding bij vrije plekken. Hij valt automatisch buiten die pushberichten.'}</div></span>
+      <button class="sw${k.meld?' on':''}" id="k-meld" role="switch" aria-checked="${k.meld}"><i></i></button></div>
+  </div>
+  <div class="card"><div class="kv"><span>E-mail</span><b>${k.mail}</b></div>
+    <div class="kv"><span>Telefoon</span><b>${k.tel}</b></div>
+    <div class="kv"><span>Product</span><b>${k.prod}</b></div></div>
+  <div class="spacer"></div>`;
+ $('#s-klant').querySelector('#k-meld').onclick=()=>{k.meld=!k.meld;openKlant(id)};
+ if($('#s-klant').querySelector('[data-ev]'))$('#s-klant').querySelector('[data-ev]').onclick=()=>openEvaluatie(id);
+ $('#s-klant').querySelector('[data-chat]').onclick=()=>openChat(id);
+ $('#s-klant').querySelector('[data-note]').onclick=()=>{
+  $('#sheetbody').innerHTML=`<h3>Notitie bij ${k.n}</h3><p class="sub">Interne notities zijn nooit zichtbaar voor de klant.</p>
+   <div class="card"><textarea rows="4" placeholder="Wat moet een collega weten voor de volgende training?" style="width:100%;border:0;outline:0;font:inherit;font-size:14px;resize:none"></textarea></div>
+   <div class="btnrow"><button class="btn" data-x>Notitie opslaan</button><button class="btn ghost" data-y>Doorzetten als bericht</button></div>
+   <p class="tip">Doorzetten als bericht zet de tekst in de chat met de klant. Dat is de enige route waarlangs een notitie de klantapp bereikt.</p><div class="spacer"></div>`;
+  $('#sheetbody').querySelector('[data-x]').onclick=()=>{closeSheet();toast('Notitie opgeslagen','De notitie staat nu bovenaan het profiel en verschijnt bij de eerstvolgende sessie van '+k.n.split(' ')[0]+' op je dashboard.')};
+  $('#sheetbody').querySelector('[data-y]').onclick=()=>{closeSheet();openChat(id)};
+  openSheet();
+ };
+ show('klant');
+}
+
+/* =============== updates =============== */
+function renderUpd(){
+ $('#s-updates').innerHTML=`<div class="sechead"><div class="ic">${IC.bell}</div>
+   <div><h2>Recente activiteit</h2><div class="sub">Meest recent eerst</div></div></div>`+
+  UPD.map(u=>{const k=KI[u.id];
+   const cls=u.kind==='sig'?'sig':u.kind==='att'?'att':'';
+   const bd=u.kind==='sig'?'b-red':u.kind==='att'?'b-amber':'b-off';
+   return `<button class="card tap upd ${cls}" data-go="${u.id}">
+    <div class="rowline"><span class="av">${k.ini}</span>
+     <span><b style="font-size:15px">${k.n}</b><br><span class="badge ${bd}">${u.lab}</span></span>
+     <span class="when">${u.w}</span></div><p>${u.p}</p></button>`}).join('')+
+  `<p class="tip">Aandacht en Signaal worden automatisch bepaald. De drempels staan in instellingen, niet in de code.</p><div class="spacer"></div>`;
+ $('#s-updates').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>openKlant(b.dataset.go));
+}
+
+/* =============== chat =============== */
+function openChat(id){
+ chatId=id;
+ const t=(CHAT[id]||[['us','Nog geen berichten in deze draad.','']]).map(m=>
+  `<div class="msg ${m[0]==='us'?'us':'them'}">${m[1]}${m[2]?`<time>${m[2]}</time>`:''}</div>`).join('');
+ $('#s-chat').innerHTML=`<div class="thread">${t}</div>
+  <div class="composer"><input id="msgin" placeholder="Bericht aan de klant"><button class="send" id="msgsend">↑</button></div>
+  <p class="tip">Dit is dezelfde draad die de klant in zijn app ziet.</p><div class="spacer"></div>`;
+ $('#msgsend').onclick=()=>{const v=$('#msgin').value.trim();if(!v)return;
+  (CHAT[id]=CHAT[id]||[]).push(['us',v,'nu']);openChat(id)};
+ $('#msgin').addEventListener('keydown',e=>{if(e.key==='Enter')$('#msgsend').click()});
+ show('chat');
+}
+
+/* =============== meer + beschikbaarheid =============== */
+function renderMeer(){
+ const items=[
+  ['wie','one','Ingelogd als '+ME.full,ME.rl+' — bepaalt wat je mag wijzigen'],
+  ['updates','bell','Updates','Signalen, notities en binnengekomen berichten'],
+  ['rooster','cal','Rooster','Clubtrainingen, reeksen en losse sessies'],
+  ['beschik','clock','Beschikbaarheid','Stel je vaste uren in voor privéactiviteiten'],
+  ['instel','gear','Instellingen','Drempels, afmeldvensters en geldigheidstermijnen'],
+  ['import','sync','Klantimport','Laatste import uit Trainin: 1 september 2026'],
+  ['over','more','Over deze mockup','Voorbeelddata, geen backend']];
+ $('#s-meer').innerHTML=items.map(([a,i,t,d])=>`<button class="mrow" data-m="${a}">
+   <span class="ic">${IC[i]}</span><span style="flex:1"><b>${t}</b><small>${d}</small></span><span class="chev">›</span></button>`).join('')+
+  `<div class="spacer"></div>`;
+ $('#s-meer').querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{
+  const m=b.dataset.m;
+  if(m==='wie'){
+   $('#sheetbody').innerHTML=`<h3>Ingelogd als</h3>
+    <p class="sub">Aanwezigheid bijwerken en klanten afmelden mag alleen de trainer van die sessie, en de eigenaar altijd.</p>
+    ${USERS.map((u,i)=>`<button class="chk${u===ME?' on':''}" data-u="${i}"><span class="box">✓</span>
+      ${u.full} — ${u.rl}</button>`).join('')}
+    <div class="spacer"></div>`;
+   $('#sheetbody').querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{
+    ME=USERS[+b.dataset.u];closeSheet();renderMeer();
+   });
+   openSheet();return;
+  }
+  if(m==='updates')show('updates');
+  if(m==='rooster')show('rooster');
+  if(m==='beschik')show('beschik');
+  else if(m==='instel')sheetInstel();
+  else if(m==='import')toast('Klantimport','Het klantenbestand komt als CSV uit Trainin en wordt via Google Drive aangeleverd. De import is idempotent: dezelfde export opnieuw draaien levert geen dubbele klanten op.');
+  else toast('Over deze mockup','Doorklikbare mockup van de bedrijfsapp met voorbeelddata. Er zit geen backend achter en er staan geen echte klantgegevens in.');
+ });
+}
+function sheetInstel(){
+ $('#sheetbody').innerHTML=`<h3>Instellingen</h3><p class="sub">Instelbaar, niet vastgezet in de code</p>
+  <div class="card">
+   <div class="kv"><span>Afmelden Clubtraining</span><b>12 uur vooraf</b></div>
+   <div class="kv"><span>Afmelden PT</span><b>24 uur vooraf</b></div>
+   <div class="kv"><span>Geldigheid credit Club</span><b>7 dagen</b></div>
+   <div class="kv"><span>Geldigheid credit PT</span><b>14 dagen</b></div>
+   <div class="kv"><span>Waarschuwen bij verval</span><b>48 uur vooraf</b></div>
+  </div>
+  <div class="card">
+   <div class="kv"><span>“Aandacht” onder</span><b>1,0 bezoek per week</b></div>
+   <div class="kv"><span>“Signaal” boven</span><b>30% annulering</b></div>
+  </div>
+  <p class="tip">De businessregel staat vast, de getallen staan in config. Aanpassen kan zonder nieuwe app-versie.</p><div class="spacer"></div>`;
+ openSheet();
+}
+const uren=r=>r.allDay?24:((mins(r.to)-mins(r.from))/60);
+const dagtekst=r=>r.days.length===7?'elke dag':r.days.length===0?'geen dagen gekozen':r.days.map(i=>DAGK[i]).join(', ');
+const datumtekst=d=>{const[a,b,c]=d.split('-');
+ return +a+' '+['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'][+b-1]+' '+c};
+
+function renderBeschik(){
+ const totaal=AVAIL.filter(r=>r.freq!=='Eenmalig').reduce((s,r)=>s+uren(r)*r.days.length,0);
+ $('#s-beschik').innerHTML=`
+  <div class="preview" style="margin:16px 16px 0"><b>${totaal} uur per week open voor PT.</b>
+   Klanten met een geldige PT-credit zien hiervan alleen de uren die nog vrij zijn — geboekte sessies en clubtrainingen vallen er automatisch uit.</div>
+  ${AVAIL.map(r=>`<button class="card tap" data-e="${r.id}">
+    <div class="rowline"><b style="font-size:17px;font-weight:600">${r.allDay?'Hele dag':r.from+' – '+r.to}</b>
+      <span class="when">${r.freq}</span></div>
+    <div class="rulechips">${DAGK.map((d,i)=>`<span class="rulechip${r.days.includes(i)?' on':''}">${d}</span>`).join('')}</div>
+    <div style="color:var(--muted);font-size:13px;margin-top:9px">Vanaf ${datumtekst(r.start)}, ${r.end?'tot en met '+datumtekst(r.end):'doorlopend'}</div>
+    <div style="color:var(--muted);font-size:13px">${r.alle?'Alle privéactiviteiten':r.act.join(', ')||'Geen activiteit gekozen'}</div>
+  </button>`).join('')}
+  <div class="btnrow"><button class="btn" data-new>Beschikbaarheid toevoegen</button></div>
+  <p class="tip">Deze uren sturen de klantapp: een PT-lid ziet precies de kruising van zijn creditgeldigheid en jouw vrije tijd. Clubtrainingen hoef je hier niet in te vullen, die staan al vast in het rooster.</p>
+  <div class="spacer"></div>`;
+ $('#s-beschik').querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>openRule(+b.dataset.e));
+ $('#s-beschik').querySelector('[data-new]').onclick=()=>openRule(null);
+}
+
+function openRule(id){
+ const bron=id?AVAIL.find(r=>r.id===id):{id:null,start:'07-09-2026',allDay:false,from:'09:00',to:'12:00',
+   freq:'Wekelijks',days:[],end:null,alle:true,act:[]};
+ editRule=JSON.parse(JSON.stringify(bron));
+ show('beschikedit');
+}
+
+function renderRule(){
+ const r=editRule,s=$('#s-beschikedit');
+ const perweek=r.days.length*uren(r);
+ s.innerHTML=`
+ <div class="field"><div class="flabel">Startdatum <em>*</em></div>
+   <input class="fin" id="f-start" value="${r.start}" inputmode="numeric">
+   <div class="fhelp">Jouw planning begint vanaf deze datum</div></div>
+
+ <div class="field"><div class="flabel">Hele dag</div>
+   <button class="sw${r.allDay?' on':''}" id="f-allday" role="switch" aria-checked="${r.allDay}"><i></i></button>
+   <div class="fhelp">Markeert je als beschikbaar voor de hele dag (00:00–24:00)</div></div>
+
+ ${r.allDay?'':`<div class="field"><div class="flabel">Tijd</div>
+   <div class="timerow">
+     <label class="tbox"><input id="f-fh" value="${r.from.slice(0,2)}" inputmode="numeric" maxlength="2"><span>:</span><input id="f-fm" value="${r.from.slice(3)}" inputmode="numeric" maxlength="2"></label>
+     <span class="tot">tot</span>
+     <label class="tbox"><input id="f-th" value="${r.to.slice(0,2)}" inputmode="numeric" maxlength="2"><span>:</span><input id="f-tm" value="${r.to.slice(3)}" inputmode="numeric" maxlength="2"></label>
+   </div>
+   ${mins(r.to)<=mins(r.from)?'<div class="fhelp" style="color:var(--red)">De eindtijd ligt voor de begintijd. Kies een eindtijd later dan '+r.from+'.</div>':''}</div>`}
+
+ <div class="field"><div class="flabel">Herhaalt</div>
+   <select class="fin" id="f-freq">
+     ${['Eenmalig','Wekelijks','Om de week','Maandelijks'].map(f=>`<option${f===r.freq?' selected':''}>${f}</option>`).join('')}
+   </select></div>
+
+ ${r.freq==='Eenmalig'?'':`<div class="field"><div class="flabel">Herhalen op</div>
+   <div class="seg" id="f-days">${DAGK.map((d,i)=>`<button class="segb${r.days.includes(i)?' on':''}" data-d="${i}">${d}</button>`).join('')}</div>
+   <div class="fhelp">Selecteer de dagen waarop deze tijden gelden</div></div>`}
+
+ <div class="field"><div class="flabel">Einddatum instellen</div>
+   <button class="sw${r.end?' on':''}" id="f-endsw" role="switch" aria-checked="${!!r.end}"><i></i></button>
+   ${r.end?`<input class="fin" id="f-end" value="${r.end}" inputmode="numeric">`:''}
+   <div class="fhelp">Als er geen einddatum is ingesteld, is je beschikbaarheid doorlopend</div></div>
+
+ <div class="field"><div class="flabel">Toepassen op alle privéactiviteiten</div>
+   <button class="sw${r.alle?' on':''}" id="f-alle" role="switch" aria-checked="${r.alle}"><i></i></button>
+   <div class="fhelp">Als uit, kies op welke privéactiviteiten je beschikbare uren van toepassing zijn</div>
+   ${r.alle?'':ACTS.map(a=>`<button class="chk${r.act.includes(a)?' on':''}" data-a="${a}"><span class="box">✓</span>${a}</button>`).join('')}</div>
+
+ <div class="preview">${r.days.length===0&&r.freq!=='Eenmalig'
+   ?'<b>Nog geen dagen gekozen.</b> Zolang er geen dag aan staat, ziet een PT-klant geen enkel moment van je.'
+   :`<b>${r.freq==='Eenmalig'?uren(r)+' uur eenmalig':perweek+' uur per week'}</b> op ${dagtekst(r)}${r.allDay?'':', van '+r.from+' tot '+r.to}. ${r.alle?'Geldt voor alle privéactiviteiten.':'Geldt voor '+(r.act.join(' en ')||'nog geen activiteit')+'.'}`}</div>
+
+ <div class="savebar"><button class="btn" id="f-save">Opslaan</button>
+   ${r.id?'<button class="btn ghost" id="f-del">Verwijderen</button>':''}</div>
+ <div class="spacer"></div>`;
+
+ const upd=(k,v)=>{editRule[k]=v;renderRule()};
+ $('#f-allday').onclick=()=>upd('allDay',!r.allDay);
+ $('#f-alle').onclick=()=>upd('alle',!r.alle);
+ $('#f-endsw').onclick=()=>upd('end',r.end?null:r.start);
+ $('#f-freq').onchange=e=>upd('freq',e.target.value);
+ $('#f-start').onchange=e=>upd('start',e.target.value);
+ if($('#f-end'))$('#f-end').onchange=e=>upd('end',e.target.value);
+ s.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{
+  const i=+b.dataset.d, d=r.days.includes(i)?r.days.filter(x=>x!==i):[...r.days,i].sort((a,b)=>a-b);
+  upd('days',d);
+ });
+ s.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{
+  const a=b.dataset.a, l=r.act.includes(a)?r.act.filter(x=>x!==a):[...r.act,a];
+  upd('act',l);
+ });
+ ['f-fh','f-fm','f-th','f-tm'].forEach(idd=>{const i=$('#'+idd);if(!i)return;
+  i.onchange=()=>{
+   const p=x=>String(Math.min(idd.endsWith('h')?23:59,Math.max(0,parseInt($('#'+x).value||'0',10)))).padStart(2,'0');
+   editRule.from=p('f-fh')+':'+p('f-fm');editRule.to=p('f-th')+':'+p('f-tm');renderRule();
+  }});
+ $('#f-save').onclick=()=>{
+  if(r.freq!=='Eenmalig'&&r.days.length===0){toast('Kies eerst een dag','Zonder dagen levert deze beschikbaarheid geen enkel boekbaar moment op in de klantapp.');return}
+  if(!r.allDay&&mins(r.to)<=mins(r.from)){toast('Eindtijd klopt niet','De eindtijd ligt voor de begintijd. Kies een eindtijd later dan '+r.from+'.');return}
+  if(!r.alle&&r.act.length===0){toast('Kies een activiteit','Zet de schakelaar aan voor alle privéactiviteiten, of vink er minstens één aan.');return}
+  if(r.id)AVAIL=AVAIL.map(x=>x.id===r.id?r:x); else {r.id=Math.max(0,...AVAIL.map(x=>x.id))+1;AVAIL.push(r)}
+  show('beschik');
+  toast('Beschikbaarheid opgeslagen',`${r.freq==='Eenmalig'?uren(r)+' uur':uren(r)*r.days.length+' uur per week'} op ${dagtekst(r)} staat nu open. PT-klanten met een geldige credit zien deze momenten meteen in hun app.`);
+ };
+ if($('#f-del'))$('#f-del').onclick=()=>{
+  $('#sheetbody').innerHTML=`<h3>Beschikbaarheid verwijderen</h3>
+   <p class="sub">Al geboekte PT-sessies binnen dit blok blijven staan. Alleen nog vrije uren verdwijnen uit de klantapp.</p>
+   <div class="btnrow"><button class="btn" id="d-ja" style="background:var(--red)">Verwijderen</button>
+   <button class="btn ghost" id="d-nee">Behouden</button></div><div class="spacer"></div>`;
+  $('#d-ja').onclick=()=>{AVAIL=AVAIL.filter(x=>x.id!==r.id);closeSheet();show('beschik')};
+  $('#d-nee').onclick=closeSheet;openSheet();
+ };
+}
+function sheetRegelmenu(){
+ $('#sheetbody').innerHTML=`<h3>Meer opties</h3><p class="sub">Voor dit beschikbaarheidsblok</p>
+  <button class="mrow" id="m-dup"><span class="ic">${IC.plus}</span><span style="flex:1"><b>Dupliceren</b><small>Zelfde tijden, andere dagen</small></span></button>
+  <button class="mrow" id="m-week"><span class="ic">${IC.cal}</span><span style="flex:1"><b>Bekijken in de agenda</b><small>Zie waar het botst met clubtrainingen</small></span></button>
+  <div class="spacer"></div>`;
+ $('#m-dup').onclick=()=>{editRule={...JSON.parse(JSON.stringify(editRule)),id:null};closeSheet();renderRule()};
+ $('#m-week').onclick=()=>{closeSheet();aview='week';show('agenda')};
+ openSheet();
+}
+
+/* =============== rooster =============== */
+let FORM=null;
+const FORMTITEL=()=>!FORM?'Rooster':FORM.mode==='reeks'?(FORM.id?'Reeks bewerken':'Nieuwe reeks')
+  :FORM.mode==='sessie'?'Losse sessie':'Nieuwe activiteit';
+const TYL={club:'Clubtraining',pt:'Personal Training',fund:'Fundament',intake:'Intake'};
+
+function sheetNieuw(){
+ $('#sheetbody').innerHTML=`<h3>Toevoegen aan het rooster</h3>
+  <p class="sub">Een reeks komt elke week terug, een losse sessie staat er één keer in</p>
+  <button class="mrow" data-n="reeks"><span class="ic">${IC.sync}</span>
+    <span style="flex:1"><b>Terugkerende reeks</b><small>Vaste clubtraining op vaste dagen en tijd</small></span><span class="chev">›</span></button>
+  <button class="mrow" data-n="sessie"><span class="ic">${IC.cal}</span>
+    <span style="flex:1"><b>Losse sessie</b><small>Eenmalig, bijvoorbeeld een proefles of workshop</small></span><span class="chev">›</span></button>
+  <button class="mrow" data-n="activiteit"><span class="ic">${IC.plus}</span>
+    <span style="flex:1"><b>Nieuwe activiteit</b><small>Een nieuwe lesvorm zoals CORE of HYBRID</small></span><span class="chev">›</span></button>
+  <div class="spacer"></div>`;
+ $('#sheetbody').querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{closeSheet();openForm(b.dataset.n,null)});
+ openSheet();
+}
+
+function renderRooster(){
+ const los=S.filter(s=>!s.rid&&s.ty!=='pt'&&s.d<7).length;
+ $('#s-rooster').innerHTML=`
+  <div class="preview" style="margin:16px 16px 0"><b>${REEKSEN.filter(r=>r.actief).reduce((n,r)=>n+r.dagen.length,0)} clubtrainingen per week</b>
+   uit ${REEKSEN.filter(r=>r.actief).length} reeksen, plus ${los} losse sessies deze week.</div>
+  <div class="sechead"><div><h2 style="font-size:17px">Reeksen</h2>
+    <div class="sub">Vaste groepen, de basis van het rooster</div></div></div>
+  ${REEKSEN.map(r=>`<button class="card tap" data-r="${r.id}">
+    <div class="rowline"><b style="font-size:16px;font-weight:600">${r.act}</b>
+      <span class="when">${r.actief?r.t+' – '+hhmm(mins(r.t)+r.dur):'Gepauzeerd'}</span></div>
+    <div style="color:var(--muted);font-size:13px;margin-top:2px">${r.tr}, ${r.cap} plekken</div>
+    <div class="rulechips">${DAGK.map((d,i)=>`<span class="rulechip${r.dagen.includes(i)?' on':''}">${d}</span>`).join('')}</div>
+  </button>`).join('')}
+  <div class="sechead"><div><h2 style="font-size:17px">Activiteiten</h2>
+    <div class="sub">Lesvormen met hun standaardduur en tarief</div></div></div>
+  ${ACTIVITEITEN.map(a=>`<div class="krow"><span class="av">${a.naam.replace(/[^A-Z]/g,'').slice(0,2)||a.naam.slice(0,2).toUpperCase()}</span>
+    <span class="kmain"><b>${a.naam}</b><span>${TYL[a.ty]}, ${a.dur} min, ${a.cap} ${a.cap===1?'plek':'plekken'}</span></span>
+    <span class="badge ${a.gratis?'b-both':'b-off'}">${a.gratis?'gratis':'€ '+a.tarief}</span></div>`).join('')}
+  <div class="btnrow"><button class="btn" data-plus>Toevoegen aan het rooster</button></div>
+  <p class="tip">Een nieuwe reeks vult de agenda vanaf vandaag. Sessies die al geweest zijn blijven staan, ook als je de reeks later wijzigt.</p>
+  <div class="spacer"></div>`;
+ $('#s-rooster').querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>openForm('reeks',+b.dataset.r));
+ $('#s-rooster').querySelector('[data-plus]').onclick=sheetNieuw;
+}
+
+function openForm(mode,id){
+ if(mode==='reeks')FORM=id?{mode,...JSON.parse(JSON.stringify(REEKSEN.find(r=>r.id===id)))}
+   :{mode,id:null,act:ACTIVITEITEN[0].naam,tr:ME.naam,dagen:[],t:'18:00',dur:45,cap:6,start:'07-09-2026',eind:null,actief:true};
+ if(mode==='sessie')FORM={mode,act:ACTIVITEITEN[0].naam,tr:ME.naam,d:5,t:'11:00',dur:45,cap:6};
+ if(mode==='activiteit')FORM={mode,naam:'',ty:'club',dur:45,cap:6,tarief:'17,50'};
+ show('roosterform');
+}
+
+function renderForm(){
+ const f=FORM,s=$('#s-roosterform');
+ const actSel=(v,idd)=>`<select class="fin" id="${idd}">${ACTIVITEITEN.map(a=>
+   `<option${a.naam===v?' selected':''}>${a.naam}</option>`).join('')}</select>`;
+ const trSel=v=>`<select class="fin" id="f-tr">${TRAINERS.slice(1).map(t=>
+   `<option${t===v?' selected':''}>${t}</option>`).join('')}</select>`;
+ const durSel=v=>`<select class="fin" id="f-dur">${[30,45,60,75,90].map(d=>
+   `<option${d===v?' selected':''} value="${d}">${d} minuten</option>`).join('')}</select>`;
+
+ if(f.mode==='activiteit'){
+  s.innerHTML=`
+   <div class="field"><div class="flabel">Naam <em>*</em></div>
+     <input class="fin" id="a-naam" value="${f.naam}" placeholder="Bijvoorbeeld CORE | KRACHT">
+     <div class="fhelp">Zo staat het in de agenda en in de app van de klant</div></div>
+   <div class="field"><div class="flabel">Soort</div>
+     <div class="seg" id="a-ty">${['club','pt','fund'].map(t=>
+       `<button class="segb${f.ty===t?' on':''}" data-ty="${t}">${TYL[t]}</button>`).join('')}</div>
+     <div class="fhelp">Bepaalt de creditregels: ${f.ty==='pt'?'PT, 24 uur afmelden en 14 dagen inhalen':f.ty==='club'?'Clubtraining, 12 uur afmelden en 7 dagen inhalen':'Fundament loopt buiten de pool'}</div></div>
+   <div class="field"><div class="flabel">Standaardduur</div>${durSel(f.dur)}</div>
+   <div class="field"><div class="flabel">Standaard aantal plekken</div>
+     <input class="fin" id="a-cap" value="${f.cap}" inputmode="numeric"></div>
+   <div class="field"><div class="flabel">Los tarief</div>
+     <input class="fin" id="a-tar" value="${f.tarief}" inputmode="decimal">
+     <div class="fhelp">De prijs voor wie bijboekt zonder credit. In euro's.</div></div>
+   <div class="savebar"><button class="btn" id="f-save">Activiteit opslaan</button>
+     <button class="btn ghost" id="f-annu">Annuleren</button></div><div class="spacer"></div>`;
+  s.querySelectorAll('[data-ty]').forEach(b=>b.onclick=()=>{f.ty=b.dataset.ty;
+    f.cap=f.ty==='club'?6:1;f.dur=f.ty==='fund'?60:45;renderForm()});
+  $('#f-dur').onchange=e=>{f.dur=+e.target.value};
+  $('#f-save').onclick=()=>{
+   f.naam=$('#a-naam').value.trim();f.cap=+$('#a-cap').value||1;f.tarief=$('#a-tar').value.trim()||'—';
+   if(!f.naam){toast('Geef de activiteit een naam','Zonder naam weet een klant niet waar hij zich voor inschrijft.');return}
+   if(ACTIVITEITEN.some(a=>a.naam.toLowerCase()===f.naam.toLowerCase())){toast('Deze naam bestaat al','Kies een andere naam, anders zijn de twee lesvormen in de agenda niet uit elkaar te houden.');return}
+   ACTIVITEITEN.push({naam:f.naam,ty:f.ty,dur:f.dur,cap:f.cap,tarief:f.tarief});
+   show('rooster');toast('Activiteit toegevoegd',`${f.naam} kun je nu kiezen bij een reeks of een losse sessie.`);
+  };
+  $('#f-annu').onclick=()=>show('rooster');
+  return;
+ }
+
+ if(f.mode==='sessie'){
+  s.innerHTML=`
+   <div class="field"><div class="flabel">Activiteit</div>${actSel(f.act,'f-act')}</div>
+   <div class="field"><div class="flabel">Trainer</div>${trSel(f.tr)}</div>
+   <div class="field"><div class="flabel">Datum</div>
+     <div class="chips" style="padding:10px 0 0">${DAYS.map((d,i)=>
+       `<button class="chip${f.d===i?' on':''}" data-d="${i}">${d.k} ${d.d}</button>`).join('')}</div></div>
+   <div class="field"><div class="flabel">Begintijd</div>
+     <div class="timerow"><label class="tbox"><input id="f-h" value="${f.t.slice(0,2)}" inputmode="numeric" maxlength="2"><span>:</span><input id="f-m" value="${f.t.slice(3)}" inputmode="numeric" maxlength="2"></label>
+     <span class="tot">duurt</span><span style="flex:1">${durSel(f.dur)}</span></div></div>
+   <div class="field"><div class="flabel">Aantal plekken</div>
+     <input class="fin" id="f-cap" value="${f.cap}" inputmode="numeric"></div>
+   <div class="preview">${f.act} op ${DAYS[f.d].lang.toLowerCase()} ${DAYS[f.d].d} ${DAYS[f.d].m.toLowerCase()},
+     <b>${f.t} – ${hhmm(mins(f.t)+f.dur)}</b> met ${f.tr}. ${f.cap} ${f.cap===1?'plek':'plekken'}.
+     ${botsing(f)?`<br><span style="color:var(--red)">${f.tr} staat op dat moment al bij ${botsing(f).n}.</span>`:''}</div>
+   <div class="savebar"><button class="btn" id="f-save">Sessie toevoegen</button>
+     <button class="btn ghost" id="f-annu">Annuleren</button></div><div class="spacer"></div>`;
+  bindGedeeld(f);
+  s.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{f.d=+b.dataset.d;renderForm()});
+  $('#f-save').onclick=()=>{
+   leesTijd(f);f.cap=+$('#f-cap').value||1;
+   const a=ACTIVITEITEN.find(a=>a.naam===f.act);
+   S.push({id:SID++,d:f.d,t:f.t,dur:f.dur,ty:a.ty,n:f.act,tr:f.tr,cap:f.cap,bk:0,deelnemers:[],att:{},credit:{}});
+   aday=f.d;aview='dag';show('agenda');
+   toast('Sessie toegevoegd',`${f.act} staat nu op ${DAYS[f.d].lang.toLowerCase()} ${f.t} in de agenda. Klanten met een geldige credit kunnen zich vanaf nu inschrijven.`);
+  };
+  $('#f-annu').onclick=()=>show('rooster');
+  return;
+ }
+
+ /* reeks */
+ const perweek=f.dagen.length, plekken=perweek*f.cap;
+ s.innerHTML=`
+  <div class="field"><div class="flabel">Activiteit</div>${actSel(f.act,'f-act')}</div>
+  <div class="field"><div class="flabel">Trainer</div>${trSel(f.tr)}</div>
+  <div class="field"><div class="flabel">Herhalen op <em>*</em></div>
+    <div class="seg" id="f-dagen">${DAGK.map((d,i)=>
+      `<button class="segb${f.dagen.includes(i)?' on':''}" data-d="${i}">${d}</button>`).join('')}</div>
+    <div class="fhelp">Dezelfde tijd op elk van deze dagen</div></div>
+  <div class="field"><div class="flabel">Tijd</div>
+    <div class="timerow"><label class="tbox"><input id="f-h" value="${f.t.slice(0,2)}" inputmode="numeric" maxlength="2"><span>:</span><input id="f-m" value="${f.t.slice(3)}" inputmode="numeric" maxlength="2"></label>
+    <span class="tot">duurt</span><span style="flex:1">${durSel(f.dur)}</span></div></div>
+  <div class="field"><div class="flabel">Aantal plekken</div>
+    <input class="fin" id="f-cap" value="${f.cap}" inputmode="numeric">
+    <div class="fhelp">Meer dan zes gaat ten koste van de aandacht per klant, dat is waar de studio op draait</div></div>
+  <div class="field"><div class="flabel">Startdatum</div>
+    <input class="fin" id="f-start" value="${f.start}" inputmode="numeric"></div>
+  <div class="field"><div class="flabel">Einddatum instellen</div>
+    <button class="sw${f.eind?' on':''}" id="f-eindsw" role="switch" aria-checked="${!!f.eind}"><i></i></button>
+    ${f.eind?`<input class="fin" id="f-eind" value="${f.eind}" inputmode="numeric">`:''}
+    <div class="fhelp">Zonder einddatum loopt de reeks door tot je hem pauzeert</div></div>
+  <div class="field"><div class="flabel">Reeks actief</div>
+    <button class="sw${f.actief?' on':''}" id="f-actief" role="switch" aria-checked="${f.actief}"><i></i></button>
+    <div class="fhelp">${f.actief?'Staat in de agenda en is boekbaar voor klanten.'
+      :'Gepauzeerd. Toekomstige sessies verdwijnen uit de agenda; sessies die al geweest zijn blijven staan.'}</div></div>
+  <div class="preview">${perweek===0
+    ?'<b>Nog geen dag gekozen.</b> Kies minstens één dag, anders levert deze reeks geen enkele training op.'
+    :`<b>${perweek} ${perweek===1?'training':'trainingen'} per week</b>, ${plekken} plekken. ${dagtekst({days:f.dagen})} om ${f.t}, ${f.dur} minuten, met ${f.tr}.`}
+    ${f.dagen.map(d=>botsing({...f,d})).filter(Boolean).length
+      ?`<br><span style="color:var(--red)">${f.tr} staat op een van deze momenten al ingeroosterd.</span>`:''}</div>
+  <div class="savebar"><button class="btn" id="f-save">${f.id?'Wijzigingen opslaan':'Reeks toevoegen'}</button>
+    ${f.id?'<button class="btn ghost" id="f-del">Verwijderen</button>':'<button class="btn ghost" id="f-annu">Annuleren</button>'}</div>
+  <div class="spacer"></div>`;
+ bindGedeeld(f);
+ s.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{
+  const i=+b.dataset.d;f.dagen=f.dagen.includes(i)?f.dagen.filter(x=>x!==i):[...f.dagen,i].sort();renderForm()});
+ $('#f-eindsw').onclick=()=>{f.eind=f.eind?null:f.start;renderForm()};
+ $('#f-actief').onclick=()=>{f.actief=!f.actief;renderForm()};
+ $('#f-start').onchange=e=>{f.start=e.target.value};
+ if($('#f-eind'))$('#f-eind').onchange=e=>{f.eind=e.target.value};
+ $('#f-save').onclick=()=>{
+  leesTijd(f);f.cap=+$('#f-cap').value||1;
+  if(!f.dagen.length){toast('Kies eerst een dag','Een reeks zonder dagen levert geen trainingen op en verschijnt nergens.');return}
+  const r={id:f.id||RID++,act:f.act,tr:f.tr,dagen:f.dagen,t:f.t,dur:f.dur,cap:f.cap,start:f.start,eind:f.eind,actief:f.actief};
+  REEKSEN=f.id?REEKSEN.map(x=>x.id===r.id?r:x):[...REEKSEN,r];
+  const n=genReeks(r);
+  show('rooster');
+  toast(f.id?'Reeks bijgewerkt':'Reeks toegevoegd',
+   `${r.act} staat nu op ${dagtekst({days:r.dagen})} om ${r.t}. ${n} ${n===1?'sessie is':'sessies zijn'} vanaf vandaag in de agenda gezet. Sessies die al geweest zijn, zijn ongemoeid gelaten.`);
+ };
+ if($('#f-annu'))$('#f-annu').onclick=()=>show('rooster');
+ if($('#f-del'))$('#f-del').onclick=()=>{
+  $('#sheetbody').innerHTML=`<h3>Reeks verwijderen</h3>
+   <p class="sub">Toekomstige sessies verdwijnen uit de agenda. Klanten die al ingeschreven staan krijgen hun credit terug — dat gaat niet vanzelf, dus laat het ze weten.</p>
+   <div class="btnrow"><button class="btn" id="d-ja" style="background:var(--red)">Verwijderen</button>
+     <button class="btn ghost" id="d-nee">Behouden</button></div><div class="spacer"></div>`;
+  $('#d-ja').onclick=()=>{const r=REEKSEN.find(x=>x.id===f.id);r.actief=false;genReeks(r);
+   REEKSEN=REEKSEN.filter(x=>x.id!==f.id);closeSheet();show('rooster')};
+  $('#d-nee').onclick=closeSheet;openSheet();
+ };
+}
+function bindGedeeld(f){
+ $('#f-act').onchange=e=>{f.act=e.target.value;
+  const a=ACTIVITEITEN.find(a=>a.naam===f.act);if(a){f.dur=a.dur;f.cap=a.cap}renderForm()};
+ $('#f-tr').onchange=e=>{f.tr=e.target.value;renderForm()};
+ $('#f-dur').onchange=e=>{f.dur=+e.target.value;renderForm()};
+ ['f-h','f-m'].forEach(i=>{const n=$('#'+i);if(n)n.onchange=()=>{leesTijd(f);renderForm()}});
+}
+function leesTijd(f){
+ const p=(id,max)=>String(Math.min(max,Math.max(0,parseInt($('#'+id).value||'0',10)))).padStart(2,'0');
+ if($('#f-h'))f.t=p('f-h',23)+':'+p('f-m',59);
+}
+const botsing=f=>S.find(s=>s.d===f.d&&s.tr===f.tr&&!isVoorbij(s)&&
+  mins(s.t)<mins(f.t)+f.dur&&mins(f.t)<mins(s.t)+s.dur);
+
+/* =============== afmeldcijfers =============== */
+let cijferView='week';
+function renderCijfers(){
+ const R=alleAfm(), s=$('#s-cijfers');
+ const pct=(n,t)=>t?Math.round(n/t*100):0;
+ const laat=R.filter(r=>r.laat).length;
+ const rij=(lab,n,tot,nu)=>`<div class="stbar${nu?' nu':''}">
+   <span class="lab">${lab}</span>
+   <span class="track"><i style="width:${Math.min(100,pct(n,tot)*6)}%"></i></span>
+   <span class="num">${n}<span style="color:var(--muted);font-weight:400"> · ${pct(n,tot)}%</span></span></div>`;
+ let body='';
+ if(cijferView==='week'){
+  const wks=[29,30,31,32,33,34,35,36];
+  body=wks.map(w=>rij('week '+w,R.filter(r=>r.wk===w).length,GEB.wk[w],w===36)).join('')+
+   `<p class="tip">Week 36 loopt nog. Het percentage is het aandeel afmeldingen van alle boekingen in die week.</p>`;
+ }else if(cijferView==='maand'){
+  body=MND4.map(m=>rij({jun:'juni',jul:'juli',aug:'augustus',sep:'september'}[m],
+    R.filter(r=>r.mnd===m).length,GEB.mnd[m],m==='sep')).join('')+
+   `<p class="tip">September telt pas vier dagen, dus dat cijfer beweegt nog.</p>`;
+ }else{
+  body=['club','pt','fund'].map(t=>rij({club:'Clubtraining',pt:'Personal Training',fund:'Fundament'}[t],
+    R.filter(r=>r.ty===t).length,GEB.ty[t])).join('')+
+   `<p class="tip">PT ligt structureel lager: die klanten plannen zelf een moment dat past, en de termijn is strenger.</p>`;
+ }
+ const top=Object.entries(R.reduce((a,r)=>(a[r.id]=(a[r.id]||0)+1,a),{}))
+   .sort((a,b)=>b[1]-a[1]).slice(0,5);
+ s.innerHTML=`
+  <div class="stats" style="grid-template-columns:1fr 1fr">
+    <div class="stat"><div class="lbl">Afmeldingen</div><b>${R.length}</b><small>Laatste 8 weken</small></div>
+    <div class="stat"><div class="lbl">Te laat</div><b>${laat}<span style="color:var(--muted);font-weight:400"> · ${pct(laat,R.length)}%</span></b><small>Buiten de termijn, geen credit terug</small></div>
+  </div>
+  <div class="viewbar" style="border-top:1px solid var(--line)">
+    <div class="chips" style="padding:9px 16px">
+      ${[['week','Per week'],['maand','Per maand'],['soort','Per sessiesoort']].map(([k,l])=>
+        `<button class="chip${cijferView===k?' on':''}" data-v="${k}">${l}</button>`).join('')}
+    </div></div>
+  ${body}
+  <div class="sechead"><div><h2 style="font-size:17px">Meest afgemeld</h2>
+    <div class="sub">Laatste 8 weken, tik voor het profiel</div></div></div>
+  ${top.map(([id,n])=>{const k=KI[id];
+    return `<button class="krow" data-go="${id}"><span class="av">${k.ini}</span>
+      <span class="kmain"><b>${k.n}</b><span>${k.prod}</span></span>
+      <span class="badge ${n>=6?'b-red':n>=4?'b-amber':'b-off'}">${n}×</span><span class="chev">›</span></button>`}).join('')}
+  <p class="tip">De drempel voor het Signaal-label staat op 30% annulering. Dat past je aan in instellingen, zonder nieuwe app-versie.</p>
+  <div class="spacer"></div>`;
+ s.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{cijferView=b.dataset.v;renderCijfers()});
+ s.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>openKlant(b.dataset.go));
+}
+
+/* =============== financiën =============== */
+let finTab='overzicht', fFilter='alle', omzetView='maand';
+
+function renderFin(){
+ const s=$('#s-financien');
+ if(ME.rol!=='eigenaar'){
+  s.innerHTML=`<div class="card" style="margin-top:20px"><b style="font-weight:600">Alleen voor de eigenaar</b>
+   <p style="margin:6px 0 0;font-size:13.5px;color:var(--muted)">Facturen en omzet zijn afgeschermd. Je bent ingelogd als ${ME.full} (${ME.rl.toLowerCase()}).
+   Wissel via Meer naar Jeroen om dit deel te bekijken.</p></div><div class="spacer"></div>`;
+  return;
+ }
+ if(finTab==='facturen')return finFacturen(s);
+ if(finTab==='omzet')return finOmzet(s);
+
+ const open=fSom('open'), laat=fSom('telaat'), st=fSom('storno'), betaald=fSom(['betaald','geincasseerd']);
+ const sept=FACTUREN.filter(f=>f.dat.slice(3)==='09-2026');
+ const septBedrag=sept.reduce((a,f)=>a+fBedrag(f),0);
+ const nog=nietGefactureerd();
+ s.innerHTML=`
+  <div class="stats">
+    <div class="stat"><div class="lbl">Openstaand <i>i</i></div><b>${eur(open+laat+st)}</b>
+      <small>${FACTUREN.filter(f=>openStatus.includes(f.status)).length} posten</small></div>
+    <div class="stat"><div class="lbl">Storno's <i>i</i></div><b style="color:var(--red)">${eur(st)}</b>
+      <small>${storno().length} incasso's mislukt</small></div>
+    <div class="stat"><div class="lbl">Incasso per maand <i>i</i></div><b>${eur(incassoBedrag())}</b>
+      <small>${incassoAantal()} abonnementen</small></div>
+    <div class="stat"><div class="lbl">Ontvangen <i>i</i></div><b>${eur(betaald)}</b><small>Van deze posten</small></div>
+  </div>
+
+  <div class="sechead"><div class="ic">${IC.sync}</div>
+    <div><h2>Automatische incasso</h2><div class="sub">Clubtraining, Personal Training en straks de combinatie</div></div></div>
+  <div class="card"><div class="kv"><span>Laatste run</span><b>1 september, ${eur(incassoBedrag())}</b></div>
+    <div class="kv"><span>Mislukt</span><b style="color:${storno().length?'var(--red)':'inherit'}">${storno().length} storno's, ${eur(st)}</b></div>
+    <div class="kv"><span>Volgende run</span><b>1 oktober</b></div></div>
+  ${storno().length?`<button class="alertbar" data-telaat>
+    <div><b>${storno().length} incasso's zijn gestorneerd</b>
+      <small>${storno().map(f=>KI[f.kid].n.split(' ')[0]).join(' en ')} — stuur een betaallink</small></div>
+    <span class="chev">›</span></button>`:''}
+
+  <div class="sechead"><div class="ic">${IC.card}</div>
+    <div><h2>Eenmalig en los</h2><div class="sub">Rittenkaarten, trajecten en bijgeboekte sessies</div></div></div>
+  ${FACTUREN.filter(f=>f.wijze!=='incasso').slice(0,4).map(fRij).join('')}
+  <button class="donecard" data-naarfact style="color:var(--steen);font-weight:700">
+    <span style="flex:1">Alle ${FACTUREN.length} posten</span><span class="chev">›</span></button>
+
+  ${nog.length?`<div class="sechead"><div class="ic">${IC.people}</div>
+    <div><h2>Buiten de incasso</h2><div class="sub">${nog.length} actieve klanten zonder maandpost</div></div></div>
+   ${nog.map(k=>`<button class="krow" data-fact="${k.id}"><span class="av">${k.ini}</span>
+      <span class="kmain"><b>${k.n}</b><span>${k.prod}</span></span>
+      <span class="badge b-amber">Controleren</span><span class="chev">›</span></button>`).join('')}`:''}
+
+  <p class="tip">Een intakegesprek staat hier bewust niet tussen. Dat is geen product en levert dus geen factuur of checkout op, ook niet voor nul euro.</p>
+  <div class="spacer"></div>`;
+ s.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>openFactuur(b.dataset.f));
+ s.querySelectorAll('[data-fact]').forEach(b=>b.onclick=()=>nieuweFactuur(b.dataset.fact));
+ if(s.querySelector('[data-alles]'))s.querySelector('[data-alles]').onclick=()=>{
+  const n=nog.length;
+  nog.forEach(k=>{const t=TARIEVEN.find(t=>t.naam===k.prod)||{prijs:0};
+   FACTUREN.unshift({nr:'2026-0'+(++FNR),kid:k.id,dat:'04-09-2026',verval:'18-09-2026',status:'concept',
+    regels:[[k.prod+', september',1,t.prijs]]})});
+  renderFin();
+  toast(`${n} concepten aangemaakt`,'Ze staan als concept klaar bij Facturen. Controleer ze en verstuur ze in één keer — een concept is nog niet naar de klant.');
+ };
+ if(s.querySelector('[data-telaat]'))s.querySelector('[data-telaat]').onclick=()=>{finTab='facturen';fFilter='telaat';drawHeader('financien');renderFin()};
+ if(s.querySelector('[data-naarfact]'))s.querySelector('[data-naarfact]').onclick=()=>{finTab='facturen';drawHeader('financien');renderFin()};
+}
+const fRij=f=>{const k=KI[f.kid],[lab,cls]=FSTAT[f.status];
+ return `<button class="krow" data-f="${f.nr}"><span class="av ${['betaald','geincasseerd'].includes(f.status)?'':'off'}">${k.ini}</span>
+   <span class="kmain"><b>${k.n}</b><span>${f.nr}, ${['betaald','geincasseerd'].includes(f.status)?'voldaan '+f.betaald
+     :f.status==='storno'?'incasso mislukt':'vervalt '+f.verval}</span></span>
+   <span style="text-align:right;flex:none"><b style="font-weight:600;font-size:14px">${eur(fBedrag(f))}</b><br>
+     <span class="badge ${cls}">${lab}</span></span></button>`};
+
+function finFacturen(s){
+ const lijst=FACTUREN.filter(f=>fFilter==='alle'||f.status===fFilter);
+ const filters=[['alle','Alle'],['open','Openstaand'],['storno',"Storno's"],['telaat','Te laat'],['geincasseerd','Incasso'],['betaald','Betaald'],['concept','Concept']];
+ s.innerHTML=`
+  <div class="chips" style="padding:12px 16px 2px">${filters.map(([k,l])=>
+    `<button class="chip${fFilter===k?' on':''}" data-flt="${k}">${l}</button>`).join('')}</div>
+  <div class="preview" style="margin:12px 16px 0">${lijst.length} ${lijst.length===1?'factuur':'facturen'},
+    samen <b>${eur(lijst.reduce((a,f)=>a+fBedrag(f),0))}</b></div>
+  ${lijst.length?lijst.map(fRij).join(''):'<p class="tip">Geen facturen met dit filter.</p>'}
+  <div class="btnrow"><button class="btn" data-nieuw>Nieuwe factuur</button></div>
+  <div class="spacer"></div>`;
+ s.querySelectorAll('[data-flt]').forEach(b=>b.onclick=()=>{fFilter=b.dataset.flt;renderFin()});
+ s.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>openFactuur(b.dataset.f));
+ s.querySelector('[data-nieuw]').onclick=()=>nieuweFactuur(null);
+}
+
+function finOmzet(s){
+ const tot=o=>o.abo+o.eenm+o.los;
+ const max=Math.max(...OMZET.map(tot));
+ const groepen=['club','pt','combi','kaart','traject','los'];
+ const rij=t=>`<tr><td class="stick">${t.naam}${t.concept?' <span class="badge b-amber">concept</span>':''}</td>
+   <td>${t.aantal}${t.maand!=null&&t.maand!==t.aantal?' <span style="color:var(--muted)">('+t.maand+' nieuw)</span>':''}</td>
+   <td>${eur(t.prijs)}</td><td><b>${eur(t.prijs*(t.maand??t.aantal))}</b></td></tr>`;
+ const abo=incassoBedrag();
+ const eenm=TARIEVEN.filter(t=>t.wijze==='eenmalig').reduce((a,t)=>a+t.prijs*(t.maand??t.aantal),0);
+ const los=TARIEVEN.filter(t=>t.wijze==='los').reduce((a,t)=>a+t.prijs*t.aantal,0);
+ s.innerHTML=`
+  <div class="chips" style="padding:12px 16px 2px">
+    ${[['maand','Per maand'],['product','Per product']].map(([k,l])=>
+      `<button class="chip${omzetView===k?' on':''}" data-o="${k}">${l}</button>`).join('')}</div>
+  ${omzetView==='maand'?`
+   <div class="preview" style="margin:12px 16px 0">September staat op <b>${eur(tot(OMZET[5]))}</b>,
+    tegen ${eur(tot(OMZET[4]))} in augustus. De maand loopt nog.</div>
+   <div class="tablewrap" style="margin-top:12px"><table>
+    <thead><tr><th class="stick">Maand</th><th>Incasso</th><th>Eenmalig</th><th>Los</th><th>Totaal</th></tr></thead>
+    <tbody>${OMZET.map(o=>`<tr><td class="stick">${o.m}${o.loopt?' <span class="badge b-off">loopt</span>':''}</td>
+      <td>${eur(o.abo)}</td><td>${eur(o.eenm)}</td><td>${eur(o.los)}</td><td><b>${eur(tot(o))}</b></td></tr>`).join('')}</tbody></table></div>
+   ${OMZET.map(o=>`<div class="stbar${o.loopt?' nu':''}"><span class="lab">${o.m.slice(0,3)}</span>
+     <span class="track"><i style="width:${Math.round(tot(o)/max*100)}%"></i></span>
+     <span class="num">${eur(tot(o))}</span></div>`).join('')}
+   <p class="tip">Incasso is de vaste maandstroom uit de abonnementen. Eenmalig zijn rittenkaarten en Fundament Trajecten, los is bijboeken buiten de creditpool.</p>`
+  :`
+   <div class="preview" style="margin:12px 16px 0">Vaste incasso <b>${eur(abo)}</b> per maand uit ${incassoAantal()} abonnementen,
+    daarbovenop ${eur(eenm)} eenmalig en ${eur(los)} los deze maand.</div>
+   <div class="tablewrap" style="margin-top:12px"><table>
+    <thead><tr><th class="stick">Product</th><th>Actief</th><th>Prijs</th><th>Deze maand</th></tr></thead>
+    <tbody>${groepen.map(g=>{
+      const r=TARIEVEN.filter(t=>t.groep===g);if(!r.length)return '';
+      return `<tr><td class="stick" style="background:var(--soft)"><b>${GROEPL[g]}</b></td><td colspan="3" style="background:var(--soft)"></td></tr>`+r.map(rij).join('');
+     }).join('')}
+      <tr><td class="stick"><b>Totaal</b></td><td></td><td></td><td><b>${eur(abo+eenm+los)}</b></td></tr>
+    </tbody></table></div>
+   <p class="tip">Het combi-abonnement staat op nul: het bestaat nog niet. Drie klanten hebben nu twee losse abonnementen naast elkaar, en dat is precies waar dat product voor bedoeld is.</p>`}
+  <div class="spacer"></div>`;
+ s.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{omzetView=b.dataset.o;renderFin()});
+}
+
+/* ---- factuur openen en versturen ---- */
+function openFactuur(nr){
+ const f=FACTUREN.find(x=>x.nr===nr), k=KI[f.kid], [lab,cls]=FSTAT[f.status], bedrag=fBedrag(f);
+ const acties=f.status==='concept'
+  ?`<button class="btn" data-do="versturen">Versturen naar ${k.n.split(' ')[0]}</button>
+    <button class="btn ghost" data-do="verwijderen">Verwijderen</button>`
+  :['betaald','geincasseerd'].includes(f.status)
+  ?`<button class="btn ghost" data-do="bon">Betaalbewijs sturen</button>`
+  :f.status==='storno'
+  ?`<button class="btn" data-do="herinnering">Betaallink sturen</button>
+    <button class="btn ghost" data-do="betaald">Markeer als betaald</button>`
+  :`<button class="btn" data-do="herinnering">Herinnering sturen</button>
+    <button class="btn ghost" data-do="betaald">Markeer als betaald</button>`;
+ $('#sheetbody').innerHTML=`
+  <h3>${f.nr}</h3><p class="sub">${k.n} — ${f.dat}</p>
+  <div class="card" style="display:flex;align-items:center;gap:12px">
+    <div><b style="font-size:24px;font-weight:600">${eur(bedrag)}</b>
+      <div style="color:var(--muted);font-size:13px">${['betaald','geincasseerd'].includes(f.status)?'Voldaan op '+f.betaald+' via '+f.methode
+        :f.status==='storno'?'Incasso mislukt op '+f.dat
+        :f.status==='concept'?'Nog niet verstuurd':'Vervalt '+f.verval}</div></div>
+    <span class="badge ${cls}" style="margin-left:auto">${lab}</span>
+  </div>
+  ${f.status==='storno'?`<div class="card note"><b style="font-weight:600">De incasso is gestorneerd</b>
+    <p style="margin:6px 0 0;font-size:13.5px">Het bedrag kon op 1 september niet worden afgeschreven. Stuur een betaallink; bij de volgende run op 1 oktober probeert de incasso het niet vanzelf opnieuw.</p></div>`:''}
+  ${f.status==='telaat'?`<div class="card note"><b style="font-weight:600">Staat ${f.verval==='01-09-2026'?'3':'1'} dagen over de vervaldatum</b>
+    <p style="margin:6px 0 0;font-size:13.5px">Een herinnering gaat als push met dezelfde betaallink. Blijft het openstaan, bel dan even — dat werkt beter dan een derde melding.</p></div>`:''}
+  <div class="sechead" style="padding-bottom:4px"><div><h2 style="font-size:16px">Regels</h2></div></div>
+  <div class="card">${f.regels.map(([o,a,p])=>`<div class="kv"><span>${a}× ${o}</span><b>${eur(a*p)}</b></div>`).join('')}
+    <div class="kv"><span>Totaal</span><b>${eur(bedrag)}</b></div></div>
+  <div class="card"><div class="kv"><span>Klant</span><b>${k.n}</b></div>
+    <div class="kv"><span>E-mail</span><b>${k.mail}</b></div>
+    <div class="kv"><span>Betaalmethode</span><b>${f.methode||'Mollie betaallink'}</b></div></div>
+  <div class="savebar">${acties}</div><div class="spacer"></div>`;
+ $('#sheetbody').querySelectorAll('[data-do]').forEach(b=>b.onclick=()=>{
+  const d=b.dataset.do;
+  if(d==='versturen'){f.status='open';
+   (CHAT[k.id]=CHAT[k.id]||[]).push(['us',`Je factuur ${f.nr} voor ${eur(bedrag)} staat klaar. Betalen kan met de link in de app, vóór ${f.verval}.`,'nu']);
+   renderFin();toast('Factuur verstuurd',`${k.n} heeft een melding gekregen met een betaallink via Mollie. De factuur staat nu op openstaand.`)}
+  else if(d==='herinnering'){
+   (CHAT[k.id]=CHAT[k.id]||[]).push(['us',`Kleine herinnering: factuur ${f.nr} van ${eur(bedrag)} staat nog open. Betalen kan via de link in de app.`,'nu']);
+   toast('Herinnering verstuurd',`${k.n} heeft de melding met de betaallink gekregen. De factuur blijft openstaan tot Mollie de betaling meldt.`)}
+  else if(d==='betaald'){f.status='betaald';f.betaald='04-09-2026';f.methode='Contant of overboeking';
+   renderFin();toast('Gemarkeerd als betaald','Handmatig afgeboekt. Bij een betaling via Mollie gebeurt dit vanzelf, dus gebruik dit alleen voor contant of een losse overboeking.')}
+  else if(d==='bon'){toast('Betaalbewijs verstuurd',`${k.n} krijgt het bewijs in de app.`)}
+  else if(d==='verwijderen'){FACTUREN=FACTUREN.filter(x=>x.nr!==f.nr);renderFin();
+   toast('Concept verwijderd','De klant heeft er nooit iets van gezien.')}
+ });
+ openSheet();
+}
+
+function nieuweFactuur(kid){
+ let k=kid?KI[kid]:K[0], regels=[], direct=true;
+ const std=()=>{const t=TARIEVEN.find(t=>t.naam===k.prod);
+  return t?[[k.prod+', september',1,t.prijs]]:[]};
+ regels=std();
+ const draw=()=>{
+  const bedrag=regels.reduce((a,r)=>a+r[1]*r[2],0);
+  $('#sheetbody').innerHTML=`<h3>Nieuwe factuur</h3><p class="sub">Concept ${'2026-0'+(FNR+1)}</p>
+   <div class="field" style="padding-top:14px"><div class="flabel" style="font-size:15px">Klant</div>
+     <select class="fin" id="n-k">${K.map(x=>`<option value="${x.id}"${x.id===k.id?' selected':''}>${x.n}</option>`).join('')}</select>
+     <div class="fhelp">${k.prod}</div></div>
+   <div class="field"><div class="flabel" style="font-size:15px">Regels</div>
+     ${regels.length?regels.map((r,i)=>`<div class="chk on" style="cursor:default"><span class="box">✓</span>
+       <span style="flex:1">${r[0]}</span><b>${eur(r[1]*r[2])}</b>
+       <button class="linkb" data-del="${i}" style="margin-left:10px">×</button></div>`).join('')
+      :'<div class="fhelp">Nog geen regels. Kies hieronder wat je in rekening brengt.</div>'}
+     <div class="rulechips">${TARIEVEN.map((t,i)=>`<button class="rulechip" data-add="${i}">${t.naam} ${eur(t.prijs)}</button>`).join('')}</div>
+   </div>
+   <div class="field" style="padding-top:14px">
+     <button class="chk${direct?' on':''}" id="n-direct"><span class="box">✓</span>Direct versturen met betaallink</button>
+     <div class="fhelp">${direct?'De klant krijgt meteen een melding en kan met iDEAL betalen. Vervaldatum 18-09-2026.'
+       :'Blijft als concept staan. De klant ziet er niets van tot je hem verstuurt.'}</div></div>
+   <div class="preview">Totaal <b>${eur(bedrag)}</b> voor ${k.n}.</div>
+   <div class="savebar"><button class="btn" id="n-save">${direct?'Aanmaken en versturen':'Concept bewaren'}</button>
+     <button class="btn ghost" id="n-annu">Annuleren</button></div><div class="spacer"></div>`;
+  $('#n-k').onchange=e=>{k=KI[e.target.value];regels=std();draw()};
+  $('#n-direct').onclick=()=>{direct=!direct;draw()};
+  $('#sheetbody').querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{
+   const t=TARIEVEN[+b.dataset.add];regels.push([t.naam+(t.los?', 4 september':', september'),1,t.prijs]);draw()});
+  $('#sheetbody').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{regels.splice(+b.dataset.del,1);draw()});
+  $('#n-annu').onclick=closeSheet;
+  $('#n-save').onclick=()=>{
+   if(!regels.length){toast('Voeg eerst een regel toe','Een factuur zonder regels kan de klant niet betalen en niet begrijpen.');return}
+   const f={nr:'2026-0'+(++FNR),kid:k.id,dat:'04-09-2026',verval:'18-09-2026',
+     status:direct?'open':'concept',regels};
+   FACTUREN.unshift(f);
+   if(direct)(CHAT[k.id]=CHAT[k.id]||[]).push(['us',`Je factuur ${f.nr} voor ${eur(bedrag)} staat klaar. Betalen kan met de link in de app, vóór ${f.verval}.`,'nu']);
+   renderFin();
+   toast(direct?'Factuur verstuurd':'Concept bewaard',
+    direct?`${k.n} heeft een melding met betaallink gekregen.`:`${f.nr} staat klaar bij Facturen. De klant ziet er nog niets van.`);
+  };
+ };
+ draw();openSheet();
+}
+
+/* =============== hamburgermenu =============== */
+let huidigScherm='dashboard';
+function renderDrawer(){
+ const laat=FACTUREN.filter(f=>f.status==='telaat').length;
+ const nav=[['dashboard','dash','Dashboard'],['agenda','cal','Agenda'],['klanten','people','Klanten'],
+            ['financien','card','Financiën',laat?laat+' te laat':''],['updates','bell','Updates']];
+ const beheer=[['rooster','cal','Rooster'],['beschik','clock','Beschikbaarheid'],
+               ['cijfers','sync','Afmeldcijfers'],['instel','gear','Instellingen']];
+ $('#drawer').innerHTML=`
+  <div class="dhead"><span class="av">${ME.naam.slice(0,2).toUpperCase()}</span>
+    <b>${ME.full}</b><small>${ME.rl} — De Impact Club, Schiedam</small></div>
+  <div class="dsec">In de app</div>
+  ${nav.map(([k,i,l,b])=>`<button class="drow${huidigScherm===k?' on':''}" data-d="${k}">${IC[i]}${l}
+    ${b?`<span class="bad">${b}</span>`:''}</button>`).join('')}
+  <div class="dsec">Beheer</div>
+  ${beheer.map(([k,i,l])=>`<button class="drow${huidigScherm===k?' on':''}" data-d="${k}">${IC[i]}${l}</button>`).join('')}
+  <div class="dsec">Account</div>
+  <button class="drow" data-d="wie">${IC.one}Wisselen van gebruiker</button>
+  <button class="drow" data-d="import">${IC.sync}Klantimport</button>
+  <button class="drow" data-d="over">${IC.more}Over deze mockup</button>
+  <div class="spacer"></div>`;
+ $('#drawer').querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{
+  const k=b.dataset.d;closeDrawer();
+  if(['dashboard','agenda','klanten','financien','updates','rooster','beschik','cijfers'].includes(k))show(k);
+  else if(k==='instel')sheetInstel();
+  else if(k==='wie')sheetWie();
+  else if(k==='import')toast('Klantimport','Het klantenbestand komt als CSV uit Trainin en wordt via Google Drive aangeleverd. De import is idempotent: dezelfde export opnieuw draaien levert geen dubbele klanten op.');
+  else toast('Over deze mockup','Doorklikbare mockup van de bedrijfsapp met voorbeelddata. Er zit geen backend achter en er staan geen echte klantgegevens in.');
+ });
+}
+function openDrawer(){renderDrawer();$('#drawer').classList.add('on');$('#scrim').classList.add('on')}
+function closeDrawer(){$('#drawer').classList.remove('on');$('#scrim').classList.remove('on')}
+function sheetWie(){
+ $('#sheetbody').innerHTML=`<h3>Ingelogd als</h3>
+  <p class="sub">Aanwezigheid bijwerken en klanten afmelden mag alleen de trainer van die sessie, en de eigenaar altijd. Financiën is alleen voor de eigenaar.</p>
+  ${USERS.map((u,i)=>`<button class="chk${u===ME?' on':''}" data-u="${i}"><span class="box">✓</span>${u.full} — ${u.rl}</button>`).join('')}
+  <div class="spacer"></div>`;
+ $('#sheetbody').querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{
+  ME=USERS[+b.dataset.u];closeSheet();show(huidigScherm);
+ });
+ openSheet();
+}
+
+/* =============== leads =============== */
+let lFilter='open';
+function renderLeads(s){
+ const filters=[['open','Openstaand'],['nieuw','Nog niet benaderd'],['gepland','Intake gepland'],['gehad','Te verwerken'],['alle','Alles']];
+ const lijst=LEADS.filter(l=>lFilter==='open'?['nieuw','gebeld','gepland','gehad'].includes(l.status)
+   :lFilter==='alle'?true:l.status===lFilter);
+ const traag=leadTraag();
+ s.innerHTML=`
+  <div class="chips" style="padding:12px 16px 2px">${filters.map(([k,l])=>
+    `<button class="chip${lFilter===k?' on':''}" data-lf="${k}">${l}</button>`).join('')}</div>
+  ${traag.length?`<div class="preview" style="margin:12px 16px 0;background:#FAF0DC">
+    <b>${traag.length} ${traag.length===1?'lead wacht':'leads wachten'} al twee dagen of langer op een reactie.</b>
+    Wie zich meldt en niets hoort, gaat naar de sportschool om de hoek.</div>`
+   :`<div class="preview" style="margin:12px 16px 0">${leadOpen().length} openstaande leads, allemaal binnen twee dagen opgepakt.</div>`}
+  ${lijst.length?lijst.map(leadRij).join(''):'<p class="tip">Geen leads met dit filter.</p>'}
+  <div class="btnrow"><button class="btn" data-nieuwlead>Lead zelf toevoegen</button></div>
+  <p class="tip">Leads uit het websiteformulier komen hier automatisch binnen. Belt iemand omdat hij langsreed of via een lid van ons hoorde, dan voeg je hem hier zelf toe en plan je meteen een intake op locatie.</p>
+  <div class="spacer"></div>`;
+ s.querySelectorAll('[data-lf]').forEach(b=>b.onclick=()=>{lFilter=b.dataset.lf;renderKlanten()});
+ s.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>openLead(b.dataset.l));
+ s.querySelector('[data-nieuwlead]').onclick=()=>nieuweLead();
+}
+const leadRij=l=>{
+ const [bl,bc]=BRON[l.bron],[sl,sc]=LSTAT[l.status];
+ const traag=['nieuw','gebeld'].includes(l.status)&&l.dagen>=2;
+ return `<button class="dcard" data-l="${l.id}" style="border-top:1px solid var(--line)">
+  <div class="dtop">
+    <span class="av ${l.status==='verloren'?'off':''}">${initialen(l.naam)}</span>
+    <span class="dmain" style="margin-left:2px"><span class="t">${l.naam}</span>
+      <span class="tr">${bl} — ${leadWanneer(l)}</span>
+      <span style="display:block;margin-top:5px">
+        <span class="badge ${sc}">${sl}</span>
+        ${traag?'<span class="badge b-red" style="margin-left:4px">Opvolgen</span>':''}
+        ${l.intake?`<span class="badge b-off" style="margin-left:4px">${DAYS[l.intake.d].k} ${DAYS[l.intake.d].d} ${l.intake.t}</span>`:''}</span></span>
+    <span class="chev">›</span>
+  </div>
+  <div class="focus" style="margin-left:58px">${l.bevindingen?'<b>Uit de intake.</b> '+l.bevindingen:l.wens}</div></button>`;
+};
+
+function openLead(id){
+ const l=LEADS.find(x=>x.id===id), [bl]=BRON[l.bron], [sl,sc]=LSTAT[l.status];
+ const acties=l.status==='gewonnen'
+  ?`<button class="btn ghost" data-do="klant">Bekijk het klantprofiel</button>`
+  :l.status==='gehad'
+  ?`<button class="btn" data-do="verwerk">Intake verwerken</button>
+    <button class="btn ghost" data-do="intake">Intake verzetten</button>`
+  :`<button class="btn" data-do="intake">${l.intake?'Intake verzetten':'Intake inplannen'}</button>
+    ${l.intake?'<button class="btn ghost" data-do="verwerk">Intake verwerken</button>':'<button class="btn ghost" data-do="klant">Maak er een klant van</button>'}`;
+ $('#sheetbody').innerHTML=`
+  <h3>${l.naam}</h3><p class="sub">${bl} — ${leadWanneer(l)}</p>
+  <div class="card" style="display:flex;align-items:center;gap:12px">
+    <div><b style="font-weight:600;font-size:15px">${sl}</b>
+      <div style="color:var(--muted);font-size:13px">${l.intake
+        ?`Intake ${DAYS[l.intake.d].lang.toLowerCase()} ${DAYS[l.intake.d].d} ${DAYS[l.intake.d].m.toLowerCase()} om ${l.intake.t} bij ${l.intake.tr}`
+        :'Nog geen intake gepland'}</div></div>
+    <span class="badge ${sc}" style="margin-left:auto">${sl}</span></div>
+  <div class="focus" style="margin:10px 16px">${l.wens}</div>
+  ${l.form?`<div class="sechead" style="padding-bottom:0"><div><h2 style="font-size:16px">Ingevuld formulier</h2>
+     <div class="sub">Zelf ingevuld bij de aanvraag, zonder betaalstap</div></div></div>
+   <div class="card">${Object.entries(l.form).map(([k2,v])=>`<div class="kv"><span>${k2}</span><b>${v}</b></div>`).join('')}</div>`:''}
+  <div class="card"><div class="kv"><span>Telefoon</span><b><a href="tel:${l.tel.replace(/ /g,'')}" style="color:var(--steen)">${l.tel}</a></b></div>
+    <div class="kv"><span>E-mail</span><b>${l.mail}</b></div>
+    <div class="kv"><span>Binnengekomen</span><b>${leadWanneer(l)}</b></div></div>
+  ${l.status==='gewonnen'||l.status==='verloren'?'':`
+  <div class="sechead" style="padding-bottom:0"><div><h2 style="font-size:16px">Opvolging</h2></div></div>
+  <div class="seg" style="margin:10px 16px">
+    ${[['nieuw','Nog niet'],['gebeld','Gebeld'],['gepland','Gepland'],['gehad','Gehad']].map(([k,lb])=>
+      `<button class="segb${l.status===k?' on':''}" data-st="${k}">${lb}</button>`).join('')}</div>`}
+  <div class="sechead" style="padding-bottom:0"><div><h2 style="font-size:16px">Notities</h2></div></div>
+  ${l.notities.length?l.notities.map(n=>`<div class="card note"><div style="color:var(--muted);font-size:12.5px">${n[0]} · ${n[1]}</div>
+     <p style="margin:6px 0 0;font-size:13.5px">${n[2]}</p></div>`).join('')
+   :'<p class="tip">Nog geen notities. Leg vast wat er is besproken, dan weet een collega het ook.</p>'}
+  <div class="field" style="padding-top:10px">
+    <textarea class="fin" id="l-note" rows="2" placeholder="Wat is er besproken?"></textarea>
+    <div class="btnrow" style="margin:10px 0 0"><button class="btn ghost" data-do="notitie">Notitie opslaan</button></div></div>
+  <div class="savebar">${acties}</div>
+  ${l.status==='gewonnen'||l.status==='verloren'?'':'<div class="btnrow"><button class="btn ghost" data-do="verloren" style="color:var(--red)">Niet doorgegaan</button></div>'}
+  <div class="spacer"></div>`;
+ const sb=$('#sheetbody');
+ sb.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{
+  if(b.dataset.st==='gepland'&&!l.intake)return planIntake(l);
+  if(b.dataset.st==='gehad'){l.status='gehad';return verwerkIntake(l)}
+  l.status=b.dataset.st;renderKlanten();openLead(id);
+ });
+ sb.querySelectorAll('[data-do]').forEach(b=>b.onclick=()=>{
+  const d=b.dataset.do;
+  if(d==='intake')planIntake(l);
+  else if(d==='verwerk'){l.status='gehad';verwerkIntake(l)}
+  else if(d==='klant')l.status==='gewonnen'?(closeSheet(),openKlant(l.klantId)):maakKlant(l);
+  else if(d==='notitie'){
+   const v=$('#l-note').value.trim();
+   if(!v){$('#l-note').focus();return}
+   l.notities.unshift([ME.naam,'zojuist',v]);
+   if(l.status==='nieuw')l.status='gebeld';
+   renderKlanten();openLead(id);
+  }
+  else if(d==='verloren'){
+   $('#sheetbody').innerHTML=`<h3>Niet doorgegaan</h3><p class="sub">${l.naam} verdwijnt uit je openstaande leads. Je kunt hem terugvinden onder Alles.</p>
+    <div class="btnrow"><button class="btn" id="v-ja" style="background:var(--red)">Afsluiten</button>
+      <button class="btn ghost" id="v-nee">Terug</button></div><div class="spacer"></div>`;
+   $('#v-ja').onclick=()=>{l.status='verloren';l.intake=null;
+    for(let i=S.length-1;i>=0;i--)if(S[i].lead===l.id)S.splice(i,1);
+    closeSheet();renderKlanten()};
+   $('#v-nee').onclick=()=>openLead(id);
+  }
+ });
+ openSheet();
+}
+
+function planIntake(l){
+ let d=l.intake?l.intake.d:5, t=l.intake?l.intake.t:'12:00', tr=l.intake?l.intake.tr:ME.naam;
+ const uren=['09:00','10:00','11:00','12:00','13:00','16:00','17:00','18:00'];
+ const draw=()=>{
+  $('#sheetbody').innerHTML=`<h3>Intake op locatie</h3><p class="sub">${l.naam} — 20 minuten, gratis, er wordt niet getraind</p>
+   <div class="field" style="padding-top:14px"><div class="flabel" style="font-size:15px">Trainer</div>
+     <select class="fin" id="i-tr">${TRAINERS.slice(1).map(x=>`<option${x===tr?' selected':''}>${x}</option>`).join('')}</select></div>
+   <div class="field"><div class="flabel" style="font-size:15px">Dag</div>
+     <div class="chips" style="padding:10px 0 0">${DAYS.map((x,i)=>
+       i<NOW.day?'':`<button class="chip${d===i?' on':''}" data-d="${i}">${x.k} ${x.d}</button>`).join('')}</div></div>
+   <div class="field"><div class="flabel" style="font-size:15px">Tijd</div>
+     <div class="slots" style="margin:10px 0 0">${uren.map(u=>{
+       const bez=botsing({d,tr,t:u,dur:20});
+       return `<button class="slot ${t===u?'free':bez?'taken':''}" data-t="${u}"${bez?' disabled':''}>${u}
+         <small>${bez?'bezet':t===u?'gekozen':'vrij'}</small></button>`}).join('')}</div></div>
+   <div class="preview">Intake met ${l.naam.split(' ')[0]} op ${DAYS[d].lang.toLowerCase()} ${DAYS[d].d} ${DAYS[d].m.toLowerCase()} om ${t}, bij ${tr}.
+     <br><span style="color:var(--muted)">Gratis en één keer per persoon. Er gaat geen factuur uit en er komt geen checkout aan te pas; hij vult alleen zijn gegevens in.</span></div>
+   <div class="savebar"><button class="btn" id="i-save">Intake inplannen</button>
+     <button class="btn ghost" id="i-terug">Terug</button></div><div class="spacer"></div>`;
+  $('#i-tr').onchange=e=>{tr=e.target.value;draw()};
+  $('#sheetbody').querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{d=+b.dataset.d;draw()});
+  $('#sheetbody').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{t=b.dataset.t;draw()});
+  $('#i-terug').onclick=()=>openLead(l.id);
+  $('#i-save').onclick=()=>{
+   for(let i=S.length-1;i>=0;i--)if(S[i].lead===l.id)S.splice(i,1);
+   S.push({id:SID++,d,t,dur:20,ty:'intake',n:'Intake '+l.naam.split(' ')[0],tr,cap:1,bk:1,lead:l.id,
+    deelnemers:[],att:{},credit:{},
+    focus:l.wens,notes:[['nieuw',l.naam,BRON[l.bron][0]+', '+leadWanneer(l)]]});
+   l.intake={d,t,tr};l.status='gepland';
+   aday=d;renderKlanten();
+   toast('Intake ingepland',`${DAYS[d].lang} ${DAYS[d].d} ${DAYS[d].m.toLowerCase()} om ${t} bij ${tr}. Hij staat in de agenda, met de vraag van ${l.naam.split(' ')[0]} erbij zodat je voorbereid bent.`);
+  };
+ };
+ draw();openSheet();
+}
+
+function verwerkIntake(l){
+ let advies=l.advies||'club';
+ const draw=()=>{
+  $('#sheetbody').innerHTML=`<h3>Intake verwerken</h3>
+   <p class="sub">${l.naam} — ${l.intake?DAYS[l.intake.d].lang.toLowerCase()+' '+l.intake.d+' '+l.intake.t+' bij '+l.intake.tr:'gesprek gehad'}</p>
+   ${l.form?`<div class="card note"><div style="color:var(--muted);font-size:12.5px">Wat hij zelf invulde</div>
+     ${Object.entries(l.form).map(([k2,v])=>`<div class="kv"><span>${k2}</span><b>${v}</b></div>`).join('')}</div>`:''}
+   <div class="field"><div class="flabel" style="font-size:15px">Bevindingen uit het onderzoek <em>*</em></div>
+     <textarea class="fin" id="v-bev" rows="3" placeholder="Houding, mobiliteit, kracht, wat viel op">${l.bevindingen||''}</textarea>
+     <div class="fhelp">Dit komt op het klantprofiel te staan als eerste notitie</div></div>
+   <div class="field"><div class="flabel" style="font-size:15px">Verwachtingen en afspraken</div>
+     <textarea class="fin" id="v-verw" rows="2" placeholder="Wat wil hij bereiken, wat hebben jullie afgesproken">${l.verwachting||''}</textarea></div>
+   <div class="field"><div class="flabel" style="font-size:15px">Waar zie je hem na het traject</div>
+     <div class="seg" id="v-adv">${[['club','Clubtraining'],['pt','Personal Training'],['open','Nog niet duidelijk']].map(([k2,lb])=>
+       `<button class="segb${advies===k2?' on':''}" data-a="${k2}">${lb}</button>`).join('')}</div>
+     <div class="fhelp">Een richting, geen besluit. Dat valt pas na de vier trainingen.</div></div>
+   <div class="preview"><b>Volgende stap: het Fundament Traject.</b>
+     Vier begeleide trainingen in vier weken voor ${eur(255)}. Verplicht voor iedere nieuwe klant, en meteen de proef om te bepalen of hij doorgaat naar de club of bij Personal Training blijft.</div>
+   <div class="savebar"><button class="btn" id="v-fund">Fundament Traject aanbieden</button></div>
+   <div class="btnrow"><button class="btn ghost" id="v-bewaar">Alleen bevindingen opslaan</button></div>
+   <div class="spacer"></div>`;
+  const lees=()=>{l.bevindingen=$('#v-bev').value.trim();l.verwachting=$('#v-verw').value.trim();l.advies=advies};
+  $('#sheetbody').querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{lees();advies=b.dataset.a;draw()});
+  $('#v-bewaar').onclick=()=>{lees();
+   if(!l.bevindingen){$('#v-bev').focus();return}
+   l.notities.unshift([ME.naam,'zojuist','Intake gehad. '+l.bevindingen]);
+   renderKlanten();openLead(l.id);
+  };
+  $('#v-fund').onclick=()=>{lees();
+   if(!l.bevindingen){toast('Vul eerst je bevindingen in','Zonder wat je hebt gezien begint de eerste training bij nul, ook als een collega hem overneemt.');return}
+   startFundament(l);
+  };
+ };
+ draw();openSheet();
+}
+
+function startFundament(l){
+ const t=TARIEVEN.find(x=>x.groep==='traject');
+ let d=Math.max(NOW.day+1,5), tijd='09:00', tr=l.intake?l.intake.tr:ME.naam, factuur=true;
+ const uren=['07:00','08:00','09:00','10:00','11:00','12:00','16:00','17:00','18:00'];
+ const draw=()=>{
+  $('#sheetbody').innerHTML=`<h3>Fundament Traject starten</h3>
+   <p class="sub">${l.naam} — 4 trainingen in 4 weken, ${eur(t.prijs)}</p>
+   <div class="preview">Vier vaste momenten op hetzelfde tijdstip. Na de vierde bepalen jullie samen of het Clubtraining of Personal Training wordt.</div>
+   <div class="field"><div class="flabel" style="font-size:15px">Trainer</div>
+     <select class="fin" id="fu-tr">${TRAINERS.slice(1).map(x=>`<option${x===tr?' selected':''}>${x}</option>`).join('')}</select></div>
+   <div class="field"><div class="flabel" style="font-size:15px">Eerste training</div>
+     <div class="chips" style="padding:10px 0 0">${DAYS.map((x,i)=>
+       i<=NOW.day?'':`<button class="chip${d===i?' on':''}" data-d="${i}">${x.k} ${x.d}</button>`).join('')}</div></div>
+   <div class="field"><div class="flabel" style="font-size:15px">Tijd</div>
+     <div class="slots" style="margin:10px 0 0">${uren.map(u=>{
+       const bez=botsing({d,tr,t:u,dur:60});
+       return `<button class="slot ${tijd===u?'free':bez?'taken':''}" data-t="${u}"${bez?' disabled':''}>${u}
+         <small>${bez?'bezet':tijd===u?'gekozen':'vrij'}</small></button>`}).join('')}</div></div>
+   <div class="field" style="padding-top:14px">
+     <button class="chk${factuur?' on':''}" id="fu-fact"><span class="box">✓</span>Factuur van ${eur(t.prijs)} versturen</button>
+     <div class="fhelp">${factuur?'Eenmalig, met een Mollie-betaallink. Geen incasso: die start pas bij het abonnement daarna.'
+       :'Je maakt de factuur later zelf aan bij Financiën.'}</div></div>
+   <div class="preview">${l.naam} wordt klant met het Fundament Traject.
+     Elke ${DAYS[d].lang.toLowerCase()} om ${tijd} bij ${tr}, vier weken lang.</div>
+   <div class="savebar"><button class="btn" id="fu-save">Traject starten</button>
+     <button class="btn ghost" id="fu-terug">Terug</button></div><div class="spacer"></div>`;
+  $('#fu-tr').onchange=e=>{tr=e.target.value;draw()};
+  $('#sheetbody').querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{d=+b.dataset.d;draw()});
+  $('#sheetbody').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tijd=b.dataset.t;draw()});
+  $('#fu-terug').onclick=()=>verwerkIntake(l);
+  $('#fu-save').onclick=()=>{
+   const id='k'+(K.length+1), voor=l.naam.split(' ')[0];
+   const k={id,n:l.naam,ini:initialen(l.naam),p:'fund',prod:'Fundament Traject, week 1 van 4',
+    cr:[1,0],lb:'nog niet geweest',st:'Actief',freq:'—',ann:'—',sinds:'september 2026',
+    tel:l.tel,mail:l.mail,bez:'—',tot:0,fav:'—',meld:true,
+    note:{a:ME.naam,t:'zojuist',x:'Uit de intake: '+l.bevindingen+(l.verwachting?' Afgesproken: '+l.verwachting:'')},
+    next:`${DAYS[d].k} ${DAYS[d].d} ${tijd} — Fundament 1 van 4`,last:'geen',
+    traject:{advies:l.advies,week:1}};
+   K.push(k);KI[id]=k;
+   let n=0;
+   for(let w=0;w<4;w++){const dag=d+w*7;
+    if(dag>8){n++;continue}
+    S.push({id:SID++,d:dag,t:tijd,dur:60,ty:'fund',n:'Fundament '+voor,tr,cap:1,bk:1,who:id,
+     deelnemers:[id],att:{[id]:'open'},credit:{},
+     focus:`Training ${w+1} van 4. `+(l.bevindingen||''),
+     notes:[['nieuw',l.naam,'Nieuw, uit de intake van '+(l.intake?DAYS[l.intake.d].k+' '+l.intake.d:'deze week')]]});
+    n++;
+   }
+   if(factuur)FACTUREN.unshift({nr:'2026-0'+(++FNR),kid:id,dat:'04-09-2026',verval:'18-09-2026',status:'open',
+     wijze:'eenmalig',regels:[['Fundament Traject, 4 trainingen in 4 weken',1,t.prijs]]});
+   l.status='gewonnen';l.klantId=id;
+   closeSheet();openKlant(id);
+   toast('Fundament Traject gestart',`${l.naam} staat in je klantenlijst met week 1 van 4. De vier trainingen zijn ingepland op ${DAYS[d].lang.toLowerCase()} ${tijd} bij ${tr}.${factuur?` De factuur van ${eur(t.prijs)} is verstuurd met een betaallink.`:''}`);
+  };
+ };
+ draw();openSheet();
+}
+
+function maakKlant(l){
+ let prod=TARIEVEN[0].naam, direct=true;
+ const draw=()=>{
+  const t=TARIEVEN.find(x=>x.naam===prod);
+  $('#sheetbody').innerHTML=`<h3>${l.naam} wordt klant</h3><p class="sub">De lead verhuist naar je klantenlijst</p>
+   <div class="field" style="padding-top:14px"><div class="flabel" style="font-size:15px">Lidmaatschap</div>
+     <select class="fin" id="m-p">${TARIEVEN.filter(x=>['club','pt','combi','kaart','traject'].includes(x.groep)&&!x.concept).map(x=>
+       `<option${x.naam===prod?' selected':''}>${x.naam}</option>`).join('')}</select>
+     <div class="fhelp">${eur(t.prijs)}${t.wijze==='incasso'?' per maand via incasso':', eenmalig'}</div></div>
+   ${prod.startsWith('Fundament')?'':`<div class="preview" style="background:#FAF0DC">Let op: iedere nieuwe klant begint met het Fundament Traject. Sla dat alleen over als iemand hier eerder heeft getraind.</div>`}
+   <div class="field" style="padding-top:14px">
+     <button class="chk${direct?' on':''}" id="m-fact"><span class="box">✓</span>Meteen een factuur versturen</button>
+     <div class="fhelp">${direct?'Met een Mollie-betaallink, vervaldatum over veertien dagen.':'Je maakt de factuur later zelf aan bij Financiën.'}</div></div>
+   <div class="preview">${l.naam} komt in de klantenlijst met ${prod}${l.intake?' en de intake blijft in de agenda staan':''}.
+    De notities van deze lead gaan mee naar het klantprofiel.</div>
+   <div class="savebar"><button class="btn" id="m-save">Klant aanmaken</button>
+     <button class="btn ghost" id="m-terug">Terug</button></div><div class="spacer"></div>`;
+  $('#m-p').onchange=e=>{prod=e.target.value;draw()};
+  $('#m-fact').onclick=()=>{direct=!direct;draw()};
+  $('#m-terug').onclick=()=>openLead(l.id);
+  $('#m-save').onclick=()=>{
+   const id='k'+(K.length+1);
+   const soort=prod.includes('+')?'pt_club':prod.startsWith('Personal')?'pt':prod.startsWith('Fundament')?'fund':'club';
+   const k={id,n:l.naam,ini:initialen(l.naam),p:soort,prod,cr:[soort==='fund'?1:2,0],lb:'nog niet geweest',st:'Actief',
+    freq:'—',ann:'—',sinds:'september 2026',tel:l.tel,mail:l.mail,bez:'—',tot:0,fav:'—',meld:true,
+    note:{a:ME.naam,t:'zojuist',x:l.notities[0]?l.notities[0][2]:l.wens},
+    next:l.intake?`${DAYS[l.intake.d].k} ${DAYS[l.intake.d].d} ${l.intake.t} — Intake`:'geen',last:'geen'};
+   K.push(k);KI[id]=k;
+   l.status='gewonnen';l.klantId=id;
+   if(direct)FACTUREN.unshift({nr:'2026-0'+(++FNR),kid:id,dat:'04-09-2026',verval:'18-09-2026',status:'open',
+     regels:[[prod+', september',1,t.prijs]]});
+   closeSheet();openKlant(id);
+   toast('Klant aangemaakt',`${l.naam} staat nu in je klantenlijst met ${prod}.${direct?' De factuur is verstuurd met een betaallink.':''}`);
+  };
+ };
+ draw();openSheet();
+}
+
+function nieuweLead(){
+ let f={naam:'',tel:'',mail:'',bron:'telefoon',wens:'',intake:false};
+ const draw=()=>{
+  $('#sheetbody').innerHTML=`<h3>Lead toevoegen</h3><p class="sub">Voor wie belt, langskomt of via een lid van ons hoort</p>
+   <div class="field" style="padding-top:14px"><div class="flabel" style="font-size:15px">Naam <em>*</em></div>
+     <input class="fin" id="n-naam" value="${f.naam}" placeholder="Voor- en achternaam"></div>
+   <div class="field"><div class="flabel" style="font-size:15px">Telefoon <em>*</em></div>
+     <input class="fin" id="n-tel" value="${f.tel}" inputmode="tel" placeholder="06 12 34 56 78"></div>
+   <div class="field"><div class="flabel" style="font-size:15px">E-mail</div>
+     <input class="fin" id="n-mail" value="${f.mail}" inputmode="email" placeholder="Optioneel"></div>
+   <div class="field"><div class="flabel" style="font-size:15px">Hoe binnengekomen</div>
+     <div class="slots" style="margin:10px 0 0">${['telefoon','langs','doorverwijzing','website'].map(b=>
+       `<button class="slot ${f.bron===b?'free':''}" data-b="${b}" style="font-size:12.5px">${BRON[b][0].replace('Website, ','')}</button>`).join('')}</div></div>
+   <div class="field"><div class="flabel" style="font-size:15px">Wat wil hij of zij</div>
+     <textarea class="fin" id="n-wens" rows="3" placeholder="Doel, ervaring, klachten, voorkeur voor dagen">${f.wens}</textarea></div>
+   <div class="field" style="padding-top:14px">
+     <button class="chk${f.intake?' on':''}" id="n-int"><span class="box">✓</span>Meteen een intake inplannen</button>
+     <div class="fhelp">${f.intake?'Je kiest hierna dag, tijd en trainer. Doe dit terwijl je iemand aan de lijn hebt.'
+       :'De lead komt op je lijst als nog niet benaderd.'}</div></div>
+   <div class="savebar"><button class="btn" id="n-save">${f.intake?'Toevoegen en intake plannen':'Lead toevoegen'}</button>
+     <button class="btn ghost" id="n-annu">Annuleren</button></div><div class="spacer"></div>`;
+  const lees=()=>{f.naam=$('#n-naam').value;f.tel=$('#n-tel').value;f.mail=$('#n-mail').value;f.wens=$('#n-wens').value};
+  $('#sheetbody').querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{lees();f.bron=b.dataset.b;draw()});
+  $('#n-int').onclick=()=>{lees();f.intake=!f.intake;draw()};
+  $('#n-annu').onclick=closeSheet;
+  $('#n-save').onclick=()=>{
+   lees();
+   if(!f.naam.trim()||!f.tel.trim()){
+    toast('Naam en telefoon zijn nodig','Zonder telefoonnummer kun je niet terugbellen, en dat is bij een lead het enige dat telt.');return}
+   const l={id:'l'+(++LID),naam:f.naam.trim(),tel:f.tel.trim(),mail:f.mail.trim()||'—',bron:f.bron,
+     dagen:0,uur:0,status:'nieuw',wens:f.wens.trim()||'Nog niet genoteerd.',
+     notities:[[ME.naam,'zojuist','Zelf toegevoegd na contact.']],intake:null};
+   LEADS.unshift(l);ktab='leads';lFilter='open';drawHeader('klanten');renderKlanten();
+   if(f.intake)planIntake(l); else {closeSheet();
+    toast('Lead toegevoegd',`${l.naam} staat bovenaan je lijst als nog niet benaderd.`)}
+  };
+ };
+ draw();openSheet();
+}
+
+/* =============== evaluatie na het Fundament Traject =============== */
+const KLACHT=/klacht|klaag|pijn|blessure|gevoelig|last van/i;          /* in de weeknotities */
+const LICHAAM=/knie|rug|schouder|nek|enkel|pols|hernia/i;              /* in het aanvraagformulier */
+const weken=a=>a.length===1?'week '+a[0]:'week '+a.slice(0,-1).join(', ')+' en '+a[a.length-1];
+const GOED=/techniek (zit|goed|in orde)|klaar voor de groep|zelfstandig|houding is goed/i;
+const teEvalueren=()=>K.filter(k=>k.traject&&k.traject.klaar);
+
+function trajectAdvies(k){
+ const t=k.traject, log=t.log||[], red=[];
+ let score=0;
+ const klachten=log.filter(l=>KLACHT.test(l[2]));
+ if(klachten.length){score-=3;
+  red.push(['blessure','Klacht genoteerd in '+weken(klachten.map(l=>l[0])),
+   '"'+klachten[klachten.length-1][2]+'"']);}
+ const bles=(t.form||{}).Blessures||'';
+ if(LICHAAM.test(bles)){score-=1;red.push(['blessure','Zelf opgegeven bij de aanvraag',bles])}
+ const ann=parseFloat(k.ann)||0;
+ if(ann>=25){score-=2;red.push(['credit',`Annulering ${k.ann}`,'Onregelmatige aanwezigheid valt in een vaste groep meteen op.'])}
+ else if(k.bez!=='—'&&parseFloat(k.bez)>=90){score+=1;red.push(['nieuw',`Aanwezigheid ${k.bez}`,'Kwam elke training, past bij een vaste groep.'])}
+ const erv=(t.form||{}).Ervaring||'';
+ if(/nauwelijks|geen/i.test(erv)){score-=1;red.push(['vrij','Weinig trainingservaring','Uit het aanvraagformulier: “'+erv+'”'])}
+ else if(erv){score+=1;red.push(['vrij','Heeft eerder getraind','Uit het aanvraagformulier: “'+erv+'”'])}
+ const pos=log.filter(l=>GOED.test(l[2]));
+ if(pos.length){score+=3;red.push(['nieuw','Techniek beoordeeld als voldoende','"'+pos[pos.length-1][2]+'"'])}
+ if(t.advies==='club'){score+=1;red.push(['vrij','Indruk na de intake','Clubtraining'])}
+ if(t.advies==='pt'){score-=1;red.push(['vrij','Indruk na de intake','Personal Training'])}
+ return {keuze:score>=3?'club':score<=0?'pt':'twijfel',score,red,klachten:klachten.length>0};
+}
+const ADVL={club:['Clubtraining','Kan zelfstandig mee in een vaste groep.'],
+ pt:['Personal Training','Heeft nog persoonlijke begeleiding nodig.'],
+ twijfel:['Twijfelgeval','De signalen wijzen twee kanten op. Bespreek het samen.']};
+
+function openEvaluatie(id){
+ const k=KI[id], a=trajectAdvies(k);
+ let keuze=a.keuze==='twijfel'?'pt':a.keuze, prod=null, bericht=true;
+ const opties=()=>TARIEVEN.filter(t=>t.groep===keuze&&!t.concept);
+ prod=opties()[0]?opties()[0].naam:null;
+ const draw=()=>{
+  const lijst=opties(); if(!lijst.some(t=>t.naam===prod))prod=lijst[0]?lijst[0].naam:null;
+  const t=lijst.find(x=>x.naam===prod);
+  const [al,az]=ADVL[a.keuze];
+  $('#sheetbody').innerHTML=`
+   <h3>Evaluatie ${k.n.split(' ')[0]}</h3>
+   <p class="sub">Fundament Traject afgerond op ${k.traject.afgerond}</p>
+
+   <div class="card" style="background:${a.keuze==='club'?'var(--steen-50)':a.keuze==='pt'?'#EFE6DA':'#F6EBD8'};border-color:transparent">
+     <div style="color:var(--muted);font-size:12.5px">Advies op basis van formulier, intake en de vier trainingen</div>
+     <b style="display:block;font-size:19px;font-weight:600;margin-top:3px">${al}</b>
+     <div style="font-size:13.5px;margin-top:2px">${az}</div></div>
+
+   <div class="sechead" style="padding-bottom:0"><div><h2 style="font-size:16px">Waarom</h2></div></div>
+   <ul class="notes" style="margin:8px 16px">${a.red.map(r=>
+     `<li><span class="tag t-${r[0]}">${lbl(r[0])}</span><span><u>${r[1]}</u>${r[2]?' — '+r[2]:''}</span></li>`).join('')}</ul>
+
+   <div class="sechead" style="padding-bottom:0"><div><h2 style="font-size:16px">De vier trainingen</h2></div></div>
+   <div class="card">${k.traject.log.map(l=>
+     `<div class="kv" style="align-items:flex-start"><span style="flex:none;width:58px">Week ${l[0]}</span>
+      <b style="text-align:left;font-weight:400;flex:1">${l[2]}<br><span style="color:var(--muted);font-size:12px">${l[1]}</span></b></div>`).join('')}</div>
+
+   <div class="sechead" style="padding-bottom:0"><div><h2 style="font-size:16px">Wat wordt het</h2></div></div>
+   <div class="seg" style="margin:10px 16px">${[['club','Club'],['pt','Personal Training'],['combi','Combi']].map(([kk,lb])=>
+     `<button class="segb${keuze===kk?' on':''}" data-k="${kk}">${lb}</button>`).join('')}</div>
+
+   ${keuze==='club'&&a.klachten?`<div class="card note"><b style="font-weight:600">Weet je het zeker?</b>
+     <p style="margin:6px 0 0;font-size:13.5px">In een clubtraining verwachten we dat iemand zelfstandig en klachtenvrij op niveau kan bewegen. Bij ${k.n.split(' ')[0]} staan er klachten genoteerd tijdens het traject. Personal Training is dan meestal de eerlijkere keuze, ook voor de rest van de groep.</p></div>`:''}
+   ${keuze==='combi'?`<div class="card note"><b style="font-weight:600">Bestaat nog niet</b>
+     <p style="margin:6px 0 0;font-size:13.5px">Het combi-abonnement staat op de rol. Tot die tijd zet je twee losse abonnementen naast elkaar.</p></div>`:''}
+
+   ${lijst.length?`<div class="field" style="padding-top:6px"><div class="flabel" style="font-size:15px">Abonnement</div>
+     <select class="fin" id="e-p">${lijst.map(x=>`<option${x.naam===prod?' selected':''}>${x.naam}</option>`).join('')}</select>
+     <div class="fhelp">${t?eur(t.prijs)+' per maand via automatische incasso, '+t.sessies+' '+(t.sessies===1?'sessie':'sessies')+' per week':''}</div></div>`:''}
+
+   <div class="field" style="padding-top:14px">
+     <button class="chk${bericht?' on':''}" id="e-ber"><span class="box">✓</span>Uitkomst naar ${k.n.split(' ')[0]} sturen</button>
+     <div class="fhelp">${bericht?'Hij krijgt een bericht met de uitkomst en wanneer zijn eerste sessie is.'
+       :'Je vertelt het zelf. Zonder bericht blijft er niets van de evaluatie vastgelegd voor de klant.'}</div></div>
+
+   <div class="savebar"><button class="btn" id="e-save"${lijst.length?'':' disabled style="opacity:.5"'}>Vastleggen</button>
+     <button class="btn ghost" id="e-later">Nog niet</button></div>
+   <div class="btnrow"><button class="btn ghost" id="e-stop" style="color:var(--red)">Gaat niet door</button></div>
+   <div class="spacer"></div>`;
+  $('#sheetbody').querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{keuze=b.dataset.k;draw()});
+  if($('#e-p'))$('#e-p').onchange=e=>{prod=e.target.value;draw()};
+  $('#e-ber').onclick=()=>{bericht=!bericht;draw()};
+  $('#e-later').onclick=closeSheet;
+  $('#e-stop').onclick=()=>{
+   k.st='Inactief';k.prod='Geen actief product';k.traject.klaar=false;
+   closeSheet();renderDash();
+   toast('Afgesloten',`${k.n} staat nu op inactief. Het traject is afgerond, er start geen abonnement.`);
+  };
+  $('#e-save').onclick=()=>{
+   const gekozen=lijst.find(x=>x.naam===prod);
+   k.prod=gekozen.naam;k.p=keuze==='club'?'club':'pt';
+   k.cr=[gekozen.sessies||1,0];k.st='Actief';
+   k.traject.klaar=false;k.traject.uitkomst=gekozen.naam;
+   k.next='in te plannen';
+   k.note={a:ME.naam,t:'zojuist',x:`Na het Fundament gekozen voor ${gekozen.naam}. ${a.red[0]?a.red[0][1]+'.':''}`};
+   if(bericht)(CHAT[k.id]=CHAT[k.id]||[]).push(['us',
+     `Je Fundament Traject zit erop. We gaan verder met ${gekozen.naam}: ${gekozen.sessies} ${gekozen.sessies===1?'sessie':'sessies'} per week. Je kunt vanaf nu inplannen in de app. De incasso start op 1 oktober.`,'nu']);
+   closeSheet();renderDash();
+   toast('Vastgelegd',`${k.n} gaat verder met ${gekozen.naam}. De incasso start op 1 oktober${bericht?' en hij heeft bericht gekregen':''}.`);
+  };
+ };
+ draw();openSheet();
+}
+
+/* =============== sheet + nav =============== */
+function openSheet(){$('#sheet').classList.add('on');$('#scrim').classList.add('on')}
+function closeSheet(){$('#sheet').classList.remove('on');$('#scrim').classList.remove('on')}
+$('#scrim').onclick=()=>{closeSheet();closeDrawer()};
+
+const TABS=[['dashboard','dash','Dashboard'],['agenda','cal','Agenda'],['klanten','people','Klanten'],
+            ['financien','card','Financiën'],['meer','menu','Menu']];
+function drawTabs(cur){
+ const t=$('#tabs');t.innerHTML='';
+ TABS.forEach(([k,i,l])=>{
+  const on=k===cur||(cur==='klant'&&k==='klanten')||(cur==='chat'&&k==='klanten')
+    ||(cur==='cijfers'&&k==='dashboard')||(['beschik','beschikedit','rooster','roosterform','updates'].includes(cur)&&k==='meer');
+  const b=el('button','tab'+(on?' on':''),IC[i]+l);
+  b.onclick=()=>k==='meer'?openDrawer():show(k);t.appendChild(b);
+ });
+}
+function show(name){
+ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+ $('#s-'+name).classList.add('on');
+ if(name==='dashboard')renderDash();
+ if(name==='agenda')renderAgenda();
+ if(name==='klanten')renderKlanten();
+ if(name==='updates')renderUpd();
+ if(name==='meer')renderMeer();
+ if(name==='beschik')renderBeschik();
+ if(name==='beschikedit')renderRule();
+ if(name==='cijfers')renderCijfers();
+ if(name==='rooster')renderRooster();
+ if(name==='financien')renderFin();
+ if(name==='roosterform')renderForm();
+ huidigScherm=name;drawHeader(name);drawTabs(name);renderDrawer();$('#main').scrollTop=0;
+}
+let _bw=breed();
+addEventListener('resize',()=>{
+ if(breed()===_bw)return;_bw=breed();
+ if(huidigScherm==='agenda')renderAgenda();
+ renderDrawer();
+});
+show('dashboard');
+</script>

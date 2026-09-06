@@ -1,0 +1,393 @@
+// De Impact Club — datamodel voor de creditpool-engine en de rest van de app.
+// Zie BOUWOPDRACHT.md §3 en CLAUDE.md §5/§8 voor de businessregels achter dit schema.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  MEMBER
+  TRAINER
+  OWNER
+}
+
+enum ProductGroup {
+  CLUB
+  PT
+  COMBI
+  KAART
+  TRAJECT
+  LOS
+  GRATIS
+}
+
+enum PayMethod {
+  INCASSO
+  EENMALIG
+  LOS
+  GRATIS
+}
+
+enum PayRhythm {
+  MAANDELIJKS
+  JAARLIJKS
+}
+
+enum CreditKind {
+  CLUB
+  PT
+}
+
+enum CreditOrigin {
+  PERIODIEK
+  TERUGGEGEVEN
+  LOS_GEKOCHT
+  RITTENKAART
+}
+
+enum SessionType {
+  CLUB
+  PT
+  FUNDAMENT
+  INTAKE
+}
+
+enum BookingStatus {
+  OPEN
+  AANWEZIG
+  AFWEZIG
+  AFGEMELD
+}
+
+enum LeadStatus {
+  NIEUW
+  GEBELD
+  GEPLAND
+  GEHAD
+  GEWONNEN
+  VERLOREN
+}
+
+enum LeadSource {
+  WEBSITE
+  INTAKE
+  TELEFOON
+  LANGS
+  DOORVERWIJZING
+}
+
+enum InvoiceStatus {
+  CONCEPT
+  OPEN
+  TELAAT
+  BETAALD
+  GEINCASSEERD
+  STORNO
+}
+
+enum TrajectAdvice {
+  CLUB
+  PT
+  OPEN
+}
+
+model User {
+  id             String    @id @default(cuid())
+  role           Role      @default(MEMBER)
+  firstName      String
+  lastName       String
+  email          String?   @unique
+  phone          String?
+  active         Boolean   @default(true)
+  memberSince    DateTime?
+  trainingRef    String?   @unique // klantreferentie uit Trainin, import-sleutel
+  passwordHash   String?
+  notifyFreeSpot Boolean   @default(true)
+  notifyReminder Boolean   @default(true)
+  notifyMessages Boolean   @default(true)
+
+  subscriptions     Subscription[]
+  credits           Credit[]
+  bookings          Booking[]
+  notes             Note[]         @relation("NoteAboutUser")
+  authoredNotes     Note[]         @relation("NoteAuthor")
+  rittenkaarten     Rittenkaart[]
+  traject           Traject?
+  invoices          Invoice[]
+  thread            Thread?
+  leadNotesAuthored LeadNote[]
+  sessionsAsTrainer Session[]      @relation("SessionTrainer")
+
+  @@index([active])
+}
+
+model Product {
+  id              String       @id @default(cuid())
+  name            String       @unique
+  group           ProductGroup
+  description     String
+  sessionsPerWeek Int? // club en pt
+  totalSessions   Int? // traject en rittenkaart
+  priceCents      Int
+  method          PayMethod
+  concept         Boolean      @default(false) // combi: bestaat nog niet
+  active          Boolean      @default(true)
+
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id         String    @id @default(cuid())
+  userId     String
+  productId  String
+  rhythm     PayRhythm @default(MAANDELIJKS)
+  startDate  DateTime
+  endDate    DateTime?
+  mandateRef String?
+  active     Boolean   @default(true)
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId, startDate]) // weigert dubbele import
+}
+
+model Credit {
+  id               String       @id @default(cuid())
+  userId           String
+  kind             CreditKind
+  origin           CreditOrigin
+  validFrom        DateTime
+  validUntil       DateTime
+  spentOnBookingId String?      @unique
+
+  user    User     @relation(fields: [userId], references: [id])
+  booking Booking? @relation("CreditSpentOnBooking", fields: [spentOnBookingId], references: [id])
+
+  @@index([userId, validUntil])
+}
+
+model Rittenkaart {
+  id         String   @id @default(cuid())
+  userId     String
+  total      Int // 25 bij PT, 10 bij duo
+  used       Int      @default(0)
+  perSession Int      @default(1) // duo kost er mogelijk 2, zie CLAUDE.md §4
+  validUntil DateTime
+
+  user     User      @relation(fields: [userId], references: [id])
+  bookings Booking[]
+}
+
+model Activity {
+  // lesvorm: CORE | KRACHT, HYBRID, Personal Training, Intake
+  id          String      @id @default(cuid())
+  name        String      @unique
+  type        SessionType
+  minutes     Int
+  capacity    Int
+  dropInCents Int?
+
+  templates SessionTemplate[]
+  sessions  Session[]
+}
+
+model SessionTemplate {
+  // reeks
+  id         String    @id @default(cuid())
+  activityId String
+  trainerId  String
+  weekdays   String // JSON-array van weekdagnummers, 0 = maandag (SQLite kent geen native Int[])
+  startTime  String // "06:30"
+  minutes    Int
+  capacity   Int
+  startDate  DateTime
+  endDate    DateTime?
+  active     Boolean   @default(true)
+
+  activity Activity  @relation(fields: [activityId], references: [id])
+  sessions Session[]
+}
+
+model Session {
+  id         String      @id @default(cuid())
+  templateId String?
+  activityId String
+  trainerId  String
+  type       SessionType
+  startsAt   DateTime // UTC
+  minutes    Int
+  capacity   Int
+  program    String? // "wat gaan we doen", alleen intern
+  leadId     String? // bij een intake
+  cancelled  Boolean     @default(false)
+
+  template SessionTemplate? @relation(fields: [templateId], references: [id])
+  activity Activity         @relation(fields: [activityId], references: [id])
+  trainer  User             @relation("SessionTrainer", fields: [trainerId], references: [id])
+  bookings Booking[]
+
+  @@index([startsAt])
+}
+
+model Booking {
+  id             String        @id @default(cuid())
+  userId         String
+  sessionId      String
+  status         BookingStatus @default(OPEN)
+  creditId       String?       @unique
+  rittenkaartId  String? // gezet als deze boeking van een rittenkaart-pool is betaald
+  paidCents      Int? // bij los bijboeken
+  cancelledAt    DateTime?
+  cancelledById  String?
+  creditReturned Boolean       @default(false)
+
+  user        User         @relation(fields: [userId], references: [id])
+  session     Session      @relation(fields: [sessionId], references: [id])
+  spentCredit Credit?      @relation("CreditSpentOnBooking")
+  rittenkaart Rittenkaart? @relation(fields: [rittenkaartId], references: [id])
+
+  @@unique([userId, sessionId]) // nooit dubbel in dezelfde sessie
+}
+
+model TrainerAvailability {
+  id            String    @id @default(cuid())
+  trainerId     String
+  startDate     DateTime
+  endDate       DateTime?
+  allDay        Boolean   @default(false)
+  startTime     String
+  endTime       String
+  frequency     String // EENMALIG | WEKELIJKS | OM_DE_WEEK | MAANDELIJKS
+  weekdays      String // JSON-array
+  allActivities Boolean   @default(true)
+  activityIds   String // JSON-array
+  active        Boolean   @default(true)
+}
+
+model Lead {
+  id              String         @id @default(cuid())
+  firstName       String
+  lastName        String
+  phone           String
+  email           String?
+  source          LeadSource
+  wish            String
+  status          LeadStatus     @default(NIEUW)
+  form            String? // JSON: doel, ervaring, blessures, voorkeursdagen, akkoord
+  findings        String? // bevindingen uit de intake, verplicht bij verwerken
+  agreements      String?
+  advice          TrajectAdvice?
+  intakeSessionId String?
+  convertedUserId String?        @unique
+  lostReason      String?
+  createdAt       DateTime       @default(now())
+
+  notes LeadNote[]
+}
+
+model LeadNote {
+  id        String   @id @default(cuid())
+  leadId    String
+  authorId  String
+  text      String
+  createdAt DateTime @default(now())
+
+  lead   Lead @relation(fields: [leadId], references: [id])
+  author User @relation(fields: [authorId], references: [id])
+}
+
+model Traject {
+  // het Fundament, 4 trainingen
+  id               String         @id @default(cuid())
+  userId           String         @unique
+  startedAt        DateTime
+  finishedAt       DateTime?
+  adviceFromIntake TrajectAdvice?
+  weekNotes        String // JSON: [{week, authorId, text}]
+  outcome          String? // productnaam, of GAAT_NIET_DOOR
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Note {
+  // interne notitie bij een klant
+  id        String   @id @default(cuid())
+  userId    String
+  authorId  String
+  text      String
+  internal  Boolean  @default(true) // NOOIT zichtbaar in de klantapp
+  createdAt DateTime @default(now())
+
+  user   User @relation("NoteAboutUser", fields: [userId], references: [id])
+  author User @relation("NoteAuthor", fields: [authorId], references: [id])
+}
+
+model Thread {
+  id       String    @id @default(cuid())
+  userId   String    @unique
+  messages Message[]
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  threadId   String
+  fromStudio Boolean
+  text       String
+  createdAt  DateTime @default(now())
+
+  thread Thread @relation(fields: [threadId], references: [id])
+}
+
+model Invoice {
+  id        String        @id @default(cuid())
+  number    String        @unique
+  userId    String
+  method    PayMethod
+  status    InvoiceStatus @default(CONCEPT)
+  issuedAt  DateTime
+  dueAt     DateTime
+  paidAt    DateTime?
+  paidVia   String?
+  mollieRef String?
+
+  lines InvoiceLine[]
+  user  User          @relation(fields: [userId], references: [id])
+}
+
+model InvoiceLine {
+  id          String @id @default(cuid())
+  invoiceId   String
+  description String
+  qty         Int
+  unitCents   Int
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+}
+
+model Setting {
+  // §12 van CLAUDE.md — instelbare drempelwaarden en termijnen
+  key   String @id
+  value String
+}
+
+// Controlelijst voor de Trainin-import: records die niet stilzwijgend
+// geïmporteerd mogen worden (dubbele namen, geen product, dubbel abonnement).
+// Zie CLAUDE.md §14 en BOUWOPDRACHT.md §7.
+model ImportIssue {
+  id          String   @id @default(cuid())
+  trainingRef String?
+  firstName   String
+  lastName    String
+  reason      String // TWEE_NAMEN | GEEN_PRODUCT | DUBBEL_ABONNEMENT | ONBEKEND_PRODUCT | GEEN_KLANTREFERENTIE
+  detail      String
+  raw         String // de originele CSV-regel, voor handmatige controle
+  createdAt   DateTime @default(now())
+}
