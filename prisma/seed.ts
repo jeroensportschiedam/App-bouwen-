@@ -269,6 +269,12 @@ async function seedKlanten() {
   const records = leesCsv(TRAININ_CSV_PATH);
   console.log(`Trainin-export gelezen: ${records.length} regels uit ${TRAININ_CSV_PATH}`);
 
+  // De controlelijst beschrijft de uitkomst van de laatste import, niet de
+  // optelsom van alle keren dat de seed ooit gedraaid heeft. Bij elke run
+  // dus opnieuw opbouwen — anders staat elk record er na drie deploys drie
+  // keer in.
+  await db.importIssue.deleteMany();
+
   let geimporteerd = 0;
   let overgeslagen = 0;
 
@@ -423,24 +429,47 @@ async function seedKlanten() {
 // Testaccounts voor fase 1 (inloggen en rollen). Trainer- en eigenaaraccounts
 // komen niet uit de Trainin-export (die kent alleen klanten) — CLAUDE.md §14
 // zegt dat trainers en de eigenaar eigen accounts krijgen, gekoppeld aan hun
-// e-mailadres. Wachtwoorden hieronder zijn alleen voor lokale ontwikkeling.
+// e-mailadres.
+//
+// De wachtwoorden komen uit de omgeving (OWNER_PASSWORD / TRAINER_PASSWORD),
+// nooit uit dit bestand: in de app staan echte klantnamen, en die app draait
+// straks op een openbare URL. Staat een wachtwoord niet ingesteld, dan maken
+// we het account liever niet aan dan met een zwak standaardwachtwoord.
+//
+// Een bestaand account krijgt hier nooit een nieuw wachtwoord: anders zet
+// elke deploy het wachtwoord terug naar de waarde uit de omgeving.
 const STAFF = [
-  { email: "eigenaar@deimpactclub.nl", firstName: "Jeroen", lastName: "Sport", role: "OWNER" as const, password: "eigenaar123" },
-  { email: "trainer@deimpactclub.nl", firstName: "Fenna", lastName: "Trainer", role: "TRAINER" as const, password: "trainer123" },
+  { email: "eigenaar@deimpactclub.nl", firstName: "Jeroen", lastName: "Sport", role: "OWNER" as const, envVar: "OWNER_PASSWORD" },
+  { email: "trainer@deimpactclub.nl", firstName: "Fenna", lastName: "Trainer", role: "TRAINER" as const, envVar: "TRAINER_PASSWORD" },
 ];
 
 async function seedStaff() {
   for (const s of STAFF) {
-    const passwordHash = await bcrypt.hash(s.password, 10);
-    await db.user.upsert({
-      where: { email: s.email },
-      update: { firstName: s.firstName, lastName: s.lastName, role: s.role, passwordHash },
-      create: { email: s.email, firstName: s.firstName, lastName: s.lastName, role: s.role, passwordHash, active: true },
+    const bestaat = await db.user.findUnique({ where: { email: s.email } });
+    if (bestaat) {
+      console.log(`Account ${s.email} bestaat al — wachtwoord ongemoeid gelaten.`);
+      continue;
+    }
+
+    const wachtwoord = process.env[s.envVar];
+    if (!wachtwoord || wachtwoord.length < 12) {
+      console.warn(
+        `Account ${s.email} NIET aangemaakt: zet ${s.envVar} (minimaal 12 tekens) in de omgeving en draai de seed opnieuw.`,
+      );
+      continue;
+    }
+
+    await db.user.create({
+      data: {
+        email: s.email,
+        firstName: s.firstName,
+        lastName: s.lastName,
+        role: s.role,
+        passwordHash: await bcrypt.hash(wachtwoord, 10),
+        active: true,
+      },
     });
-  }
-  console.log("Testaccounts (alleen lokale ontwikkeling):");
-  for (const s of STAFF) {
-    console.log(`  ${s.role === "OWNER" ? "eigenaar" : "trainer"}: ${s.email} / ${s.password}`);
+    console.log(`Account aangemaakt: ${s.email} (${s.role === "OWNER" ? "eigenaar" : "trainer"}).`);
   }
 }
 
