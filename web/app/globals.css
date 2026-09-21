@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* --- De Impact Club: design tokens --- */
+  /* Bron: moodboard (walnoot, zwart staal, donker plafond, oxblood accent) */
+  --ink: #14110f;
+  --ink-soft: #201c19;
+  --walnut: #3a2a21;
+  --walnut-light: #5a4234;
+  --oxblood: #5b1f26;
+  --oxblood-light: #7a2c34;
+  --koper: #9c6b45; /* oud koper */
+  --koper-light: #c08a5e;
+  --greige: #b9afa5;
+  --paper: #f7f5f1;
+  --paper-dim: #ede8e1;
+
+  /* Kopfont: wissel tussen 'serif' (moodboard-sfeer) en 'righteous' (merk) */
+  --font-heading: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-body: "Funnel Sans", "Segoe UI", system-ui, sans-serif;
+}
+
+[data-heading-font="righteous"] {
+  --font-heading: "Righteous", "Fraunces", Georgia, serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--ink);
+  color: var(--paper);
+}
+
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+/* Dunne verticale lichtlijn — terugkerend grafisch motief uit het moodboard */
+.lichtlijn {
+  position: relative;
+}
+.lichtlijn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--koper-light) 20%,
+    var(--koper-light) 80%,
+    transparent
+  );
+  opacity: 0.5;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
