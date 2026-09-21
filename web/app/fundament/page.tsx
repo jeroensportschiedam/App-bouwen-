@@ -37,7 +37,7 @@ export default function FundamentPage() {
   return (
     <>
       <section className="relative overflow-hidden border-b border-white/5">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-oxblood/20 via-ink to-ink" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-oxblood/45 via-walnut/15 to-ink" />
         <div className="relative mx-auto max-w-content px-5 py-20 md:px-8 md:py-28">
           <SectionLabel>Stap 1 van je klantreis</SectionLabel>
           <h1 className="max-w-2xl text-balance font-heading text-4xl text-paper md:text-5xl">
@@ -77,7 +77,7 @@ export default function FundamentPage() {
         </div>
       </section>
 
-      <section className="border-t border-white/5 bg-walnut/20">
+      <section className="border-t border-white/5 bg-walnut/35">
         <div className="mx-auto max-w-content px-5 py-20 text-center md:px-8 md:py-24">
           <h2 className="font-heading text-3xl text-paper md:text-4xl">
             Na het Fundament: de Club

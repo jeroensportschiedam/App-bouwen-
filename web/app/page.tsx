@@ -8,7 +8,11 @@ export default function HomePage() {
     <>
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-white/5">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-walnut/30 via-ink to-ink" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-walnut/70 via-walnut/20 to-ink" />
+        <div
+          className="pointer-events-none absolute -top-1/4 right-0 h-[140%] w-1/2 rounded-full blur-3xl"
+          style={{ background: "var(--oxblood)", opacity: 0.18 }}
+        />
         <div className="pointer-events-none absolute inset-0 bg-lamellen opacity-30" />
         <div className="absolute left-10 top-0 hidden h-full lichtlijn md:block" />
         <div className="absolute left-1/3 top-0 hidden h-full lichtlijn md:block" />
@@ -65,7 +69,7 @@ export default function HomePage() {
       </section>
 
       {/* Klantreis */}
-      <section className="border-y border-white/5 bg-ink-soft/40">
+      <section className="border-y border-white/5 bg-ink-soft/60">
         <div className="mx-auto max-w-content px-5 py-20 md:px-8 md:py-28">
           <SectionLabel>Je route naar de Club</SectionLabel>
           <h2 className="font-heading text-3xl text-paper md:text-4xl">
@@ -126,12 +130,12 @@ export default function HomePage() {
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           <Sfeerbeeld label="lamellenwand" variant="wand" aspect="aspect-square" />
           <Sfeerbeeld label="railsysteem" variant="detail" aspect="aspect-square" />
-          <Sfeerbeeld label="entree" variant="zaal" aspect="aspect-square" />
+          <Sfeerbeeld label="entree" variant="entree" aspect="aspect-square" />
         </div>
       </section>
 
       {/* Slot-CTA */}
-      <section className="border-t border-white/5 bg-walnut/20">
+      <section className="border-t border-white/5 bg-walnut/35">
         <div className="mx-auto max-w-content px-5 py-20 text-center md:px-8 md:py-28">
           <h2 className="font-heading text-3xl text-paper md:text-4xl">
             Klaar voor je fundament?
