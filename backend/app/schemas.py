@@ -2,7 +2,7 @@
 from datetime import date, datetime
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from .models import CustomerStatus, SessionType
 
@@ -118,3 +118,52 @@ class UpcomingBookingOut(BaseModel):
     trainer_id: Optional[int] = None
     can_cancel: bool
     cancel_reason: str
+
+
+# --------------------------------------------------------------------------
+# Leadflow van de website (lead + intake)
+# --------------------------------------------------------------------------
+
+class LeadIn(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    first_name: str = Field(min_length=1, max_length=80)
+    last_name: str = Field(min_length=1, max_length=80)
+    phone: str = Field(min_length=1, max_length=30)
+    goal: Optional[str] = Field(default=None, max_length=1000)
+
+
+class LeadOut(BaseModel):
+    token: str
+    first_name: str
+    last_name: str
+    phone: str
+    goal: Optional[str] = None
+    created_at: datetime
+
+
+class IntakeSlotOut(BaseModel):
+    starts_at: datetime
+    ends_at: datetime
+    available: bool
+
+
+class IntakeSlotsOut(BaseModel):
+    trainer: str
+    duration_minutes: int
+    slots: list[IntakeSlotOut]
+
+
+class IntakeIn(BaseModel):
+    lead_token: str = Field(min_length=1, max_length=64)
+    starts_at: datetime
+
+
+class IntakeOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    trainer_name: str
+    starts_at: datetime
+    ends_at: datetime
+    status: str

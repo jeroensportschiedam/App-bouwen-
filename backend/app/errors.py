@@ -31,3 +31,28 @@ class LateCancellationError(CreditPoolError):
 
 class AlreadyCancelledError(CreditPoolError):
     """Boeking is al geannuleerd of afgerond."""
+
+
+class LeadFlowError(Exception):
+    """Basisklasse voor fouten in de leadflow van de website (lead + intake).
+    De meldingen zijn geschreven voor de bezoeker: de website toont ze direct."""
+
+
+class InvalidLeadError(LeadFlowError):
+    """Naam of telefoonnummer ontbreekt of klopt niet."""
+
+
+class LeadNotFoundError(LeadFlowError):
+    """Er is geen lead met deze sleutel."""
+
+
+class InvalidIntakeSlotError(LeadFlowError):
+    """Het gekozen moment is geen intakemoment, of ligt in het verleden."""
+
+
+class IntakeSlotTakenError(LeadFlowError):
+    """Iemand anders heeft dit intakemoment al."""
+
+
+class LeadAlreadyScheduledError(LeadFlowError):
+    """Deze lead heeft al een geplande intake."""

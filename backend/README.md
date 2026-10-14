@@ -23,6 +23,8 @@ python scripts/import_csv.py data/dummy_customers.csv
 
 # Stap 4 — API + testschermpje samen starten, open daarna http://localhost:8000/ui/
 uvicorn app.main:app --reload
+
+# Website met werkend intakeformulier: http://localhost:8000/site/
 ```
 
 ## Structuur
@@ -40,6 +42,11 @@ uvicorn app.main:app --reload
   waaronder één rij met een ontbrekend product om de foutafhandeling te
   demonstreren)
 - `scripts/import_csv.py` — CLI om een CSV te importeren in `creditpool.db`
+- `app/leadflow.py` — leadflow van de website (CLAUDE.md §10): lead aanmaken
+  en een gratis intake plannen (di t/m do, 15:00–17:20, blokken van 20
+  minuten). Tests in `tests/test_leadflow.py` en `tests/test_leadflow_api.py`.
+  De website zelf staat in `../website` en wordt lokaal meegeserveerd onder
+  `/site`
 - `static/index.html` — Stap 4: dun testschermpje, rechtstreeks tegen deze
   API aan (geen mockdata), geserveerd door FastAPI zelf onder `/ui/`
 

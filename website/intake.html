@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Intake aanvragen · The Clubhouse Schiedam</title>
+<meta name="description" content="Plan een gratis intake van 20 minuten bij The Clubhouse in Schiedam. Dinsdag tot en met donderdag, tussen 15:00 en 17:20.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Intake aanvragen · The Clubhouse">
+<meta property="og:description" content="Kom kennismaken. Gratis en zonder verplichtingen.">
+<meta name="theme-color" content="#E3DCD1">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/config.js"></script>
+<script src="assets/site.js" defer></script>
+<script src="assets/intake.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Naar de inhoud</a>
+<div class="concept-bar"><b>Concept</b> · nog niet live · WhatsApp-nummers en privacyverklaring volgen</div>
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="index.html">The Clubhouse <span>Schiedam</span></a>
+    <nav class="nav" aria-label="Hoofdmenu">
+      <a href="index.html">Home</a>
+      <a href="hoe-het-werkt.html">Hoe het werkt</a>
+      <a href="prijzen.html">Prijzen</a>
+      <a href="over-ons.html">Over ons</a>
+    </nav>
+    <a class="btn btn-primary btn-sm cta" href="intake.html" aria-current="page">Plan je intake</a>
+    <button class="menu" id="menuBtn" type="button" aria-expanded="false" aria-controls="menu">Menu</button>
+  </div>
+  <nav class="wrap mobilenav" id="menu" aria-label="Menu" hidden>
+    <a href="index.html">Home</a>
+    <a href="hoe-het-werkt.html">Hoe het werkt</a>
+    <a href="prijzen.html">Prijzen</a>
+    <a href="over-ons.html">Over ons</a>
+    <a href="intake.html" aria-current="page">Intake aanvragen</a>
+  </nav>
+</header>
+
+<main id="main" class="wrap page">
+  <div class="intake">
+    <div class="aside">
+      <span class="eyebrow">Intake aanvragen</span>
+      <h1>Kom kennismaken.</h1>
+      <p class="lede">In 20 minuten kijken we samen of de club bij je past, en welke groep bij je rooster past. Gratis en zonder verplichtingen.</p>
+      <ul class="ticklist">
+        <li>Je spreekt Jeroen in de studio</li>
+        <li>Dinsdag tot en met donderdag, 15:00–17:20</li>
+        <li>De koffie staat klaar</li>
+      </ul>
+    </div>
+
+    <div class="panel" aria-live="polite">
+      <div class="progress" aria-hidden="true"><span class="done"></span><span></span><span></span></div>
+
+      <form id="step1" class="step" novalidate>
+        <h2 tabindex="-1">1. Wie ben je?</h2>
+        <div class="row2">
+          <div class="field"><label for="vn">Voornaam</label><input id="vn" name="voornaam" autocomplete="given-name" maxlength="80" required></div>
+          <div class="field"><label for="an">Achternaam</label><input id="an" name="achternaam" autocomplete="family-name" maxlength="80" required></div>
+        </div>
+        <div class="field"><label for="tel">Telefoonnummer</label><input id="tel" name="telefoon" type="tel" inputmode="tel" autocomplete="tel" placeholder="06 12345678" maxlength="30" required></div>
+        <div class="field"><label for="doel">Wat wil je bereiken? <em>(optioneel)</em></label><textarea id="doel" name="doel" maxlength="1000"></textarea></div>
+        <p class="err" id="err1" role="alert" hidden></p>
+        <div><button class="btn btn-primary" id="next" type="submit">Verder</button></div>
+        <p class="small">We gebruiken je gegevens alleen om contact met je op te nemen over je intake. <span class="mark">privacyverklaring nog maken</span></p>
+      </form>
+
+      <div id="step2" class="step" hidden>
+        <h2 tabindex="-1">2. Kies een moment</h2>
+        <p class="muted">Kies een moment dat jou uitkomt. Jeroen ziet je dan in de studio. Intakes zijn op dinsdag tot en met donderdag, tussen 15:00 en 17:20.</p>
+        <p class="loading" id="loading">Momenten laden…</p>
+        <div class="days" id="days" role="group" aria-label="Dag"></div>
+        <div class="slots" id="slots" role="group" aria-label="Tijd"></div>
+        <p class="muted" id="noSlots" hidden>De komende twee weken is er geen moment meer vrij. Stuur ons een WhatsApp, dan zoeken we samen een moment.</p>
+        <p class="err" id="err2" role="alert" hidden></p>
+        <div class="btnrow">
+          <button class="btn btn-ghost" id="back" type="button">Terug</button>
+          <button class="btn btn-primary" id="confirm" type="button" disabled>Bevestig mijn intake</button>
+        </div>
+        <div class="fallback" id="fallback">
+          <strong>Geen moment dat past?</strong>
+          <p class="muted">Stuur ons een WhatsApp, dan zoeken we samen een moment.</p>
+          <div class="btnrow">
+            <a class="btn btn-wa" data-wa="Jeroen" target="_blank" rel="noopener">WhatsApp Jeroen</a>
+            <a class="btn btn-wa" data-wa="Marcel" target="_blank" rel="noopener">WhatsApp Marcel</a>
+          </div>
+        </div>
+      </div>
+
+      <div id="step3" class="step" hidden>
+        <h2 class="done-title" id="doneTitle" tabindex="-1"></h2>
+        <p class="muted" id="doneText"></p>
+        <dl class="receipt" id="receipt"></dl>
+        <p class="sys" id="doneSys" hidden></p>
+        <div class="btnrow">
+          <a class="btn btn-ghost" href="index.html">Naar de homepage</a>
+          <button class="btn btn-ghost" id="restart" type="button" hidden>Opnieuw proberen</button>
+        </div>
+      </div>
+
+      <p class="sys" id="demoNote" hidden>Demomodus: dit formulier verstuurt nog niets. Met een gekoppelde backend ontstaat bij stap 1 een lead en bij stap 2 een intake in de agenda van Jeroen.</p>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="index.html">The Clubhouse</a>
+      <span>Small Group PT · Schiedam</span>
+    </div>
+    <nav aria-label="Footer">
+      <a href="hoe-het-werkt.html">Hoe het werkt</a>
+      <a href="prijzen.html">Prijzen</a>
+      <a href="over-ons.html">Over ons</a>
+      <a href="intake.html">Intake aanvragen</a>
+    </nav>
+    <div>
+      <span>Jeroen Sport VOF</span>
+      <span class="concept-only">Adres, KvK en privacyverklaring <span class="mark">nog aanvullen</span></span>
+      <span class="concept-only">Domein <span class="mark">O7</span></span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

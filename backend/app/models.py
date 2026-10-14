@@ -1,7 +1,7 @@
 """SQLAlchemy datamodel voor de creditpool-engine (sectie 2)."""
 import enum
 
-from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, Index, Integer, String, text
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy.orm import declarative_base, relationship
 
@@ -34,6 +34,11 @@ class BookingStatus(str, enum.Enum):
     BOOKED = "BOOKED"
     CANCELLED_ON_TIME = "CANCELLED_ON_TIME"
     COMPLETED = "COMPLETED"
+
+
+class IntakeStatus(str, enum.Enum):
+    SCHEDULED = "SCHEDULED"
+    CANCELLED = "CANCELLED"
 
 
 class Customer(Base):
@@ -105,3 +110,52 @@ class Booking(Base):
 
     customer = relationship("Customer", back_populates="bookings")
     session = relationship("Session", back_populates="bookings")
+
+
+class Lead(Base):
+    """Geïnteresseerde vóór de intake (CLAUDE.md §3). Ontstaat bij stap 1 van
+    "Intake aanvragen" op de website, nog vóór er een moment gekozen is."""
+
+    __tablename__ = "leads"
+
+    id = Column(Integer, primary_key=True)
+    # Onraadbare sleutel voor de website: het formulier werkt zonder login,
+    # dus het oplopende id mag niet genoeg zijn om een lead aan te passen.
+    public_token = Column(String, nullable=False, unique=True)
+    first_name = Column(String, nullable=False)
+    last_name = Column(String, nullable=False)
+    phone = Column(String, nullable=False)
+    goal = Column(String, nullable=True)
+    source = Column(String, nullable=False, default="website")
+    created_at = Column(DateTime, nullable=False)
+
+    intakes = relationship("Intake", back_populates="lead")
+
+
+class Intake(Base):
+    """Gratis gesprek van 20 minuten. Nooit een product, nooit een betaalflow."""
+
+    __tablename__ = "intakes"
+    # Eén geplande intake per trainer per moment. De database dwingt dit af,
+    # zodat twee bezoekers die tegelijk hetzelfde moment kiezen niet allebei
+    # slagen.
+    __table_args__ = (
+        Index(
+            "uq_intakes_scheduled_slot",
+            "trainer_name",
+            "starts_at",
+            unique=True,
+            sqlite_where=text("status = 'SCHEDULED'"),
+            postgresql_where=text("status = 'SCHEDULED'"),
+        ),
+    )
+
+    id = Column(Integer, primary_key=True)
+    lead_id = Column(Integer, ForeignKey("leads.id"), nullable=False)
+    trainer_name = Column(String, nullable=False)
+    starts_at = Column(DateTime, nullable=False)
+    ends_at = Column(DateTime, nullable=False)
+    status = Column(SAEnum(IntakeStatus), nullable=False, default=IntakeStatus.SCHEDULED)
+    created_at = Column(DateTime, nullable=False)
+
+    lead = relationship("Lead", back_populates="intakes")
